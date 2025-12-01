@@ -115,7 +115,7 @@ public class AnswerValidationService {
      * Résultat de validation d'une réponse.
      */
     public record ValidationResult(
-            boolean correct,
+            boolean isCorrect,
             String message,
             double similarity
     ) {
@@ -125,10 +125,6 @@ public class AnswerValidationService {
 
         public static ValidationResult incorrect(String message) {
             return new ValidationResult(false, message, 0.0);
-        }
-
-        public boolean isCorrect() {
-            return correct;
         }
     }
 }

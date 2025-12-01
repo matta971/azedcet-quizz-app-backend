@@ -177,7 +177,6 @@ class AnswerValidationServiceTest {
         void correctResultShouldHaveProperValues() {
             var result = AnswerValidationService.ValidationResult.correct();
 
-            assertThat(result.correct()).isTrue();
             assertThat(result.isCorrect()).isTrue();
             assertThat(result.message()).isEqualTo("Correct");
             assertThat(result.similarity()).isEqualTo(1.0);
@@ -188,7 +187,6 @@ class AnswerValidationServiceTest {
         void incorrectResultShouldHaveProperValues() {
             var result = AnswerValidationService.ValidationResult.incorrect("Test message");
 
-            assertThat(result.correct()).isFalse();
             assertThat(result.isCorrect()).isFalse();
             assertThat(result.message()).isEqualTo("Test message");
             assertThat(result.similarity()).isZero();
