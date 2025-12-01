@@ -104,7 +104,7 @@ class MatchControllerIntegrationTest {
         @Test
         @DisplayName("Should create match successfully")
         void shouldCreateMatchSuccessfully() throws Exception {
-            CreateMatchRequest request = new CreateMatchRequest(true, false, TeamSide.A);
+            CreateMatchRequest request = new CreateMatchRequest("CLASSIC", 4, "EU", false, null);
 
             mockMvc.perform(post("/api/matches")
                             .header("Authorization", "Bearer " + accessToken)
@@ -115,15 +115,13 @@ class MatchControllerIntegrationTest {
                     .andExpect(jsonPath("$.data.id").isNotEmpty())
                     .andExpect(jsonPath("$.data.code").isNotEmpty())
                     .andExpect(jsonPath("$.data.code", hasLength(6)))
-                    .andExpect(jsonPath("$.data.status").value("WAITING"))
-                    .andExpect(jsonPath("$.data.ranked").value(true))
-                    .andExpect(jsonPath("$.data.duo").value(false));
+                    .andExpect(jsonPath("$.data.status").value("WAITING"));
         }
 
         @Test
         @DisplayName("Should create duo match")
         void shouldCreateDuoMatch() throws Exception {
-            CreateMatchRequest request = new CreateMatchRequest(false, true, TeamSide.B);
+            CreateMatchRequest request = new CreateMatchRequest("CLASSIC", 2, "EU", false, null);
 
             mockMvc.perform(post("/api/matches")
                             .header("Authorization", "Bearer " + accessToken)
@@ -136,15 +134,15 @@ class MatchControllerIntegrationTest {
         @Test
         @DisplayName("Should add creator to preferred team")
         void shouldAddCreatorToPreferredTeam() throws Exception {
-            CreateMatchRequest request = new CreateMatchRequest(true, false, TeamSide.B);
+            CreateMatchRequest request = new CreateMatchRequest("CLASSIC", 4, "EU", false, null);
 
             mockMvc.perform(post("/api/matches")
                             .header("Authorization", "Bearer " + accessToken)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.data.teamB.players", hasSize(1)))
-                    .andExpect(jsonPath("$.data.teamB.players[0].handle").value("player1"));
+                    .andExpect(jsonPath("$.data.teamA.players", hasSize(1)))
+                    .andExpect(jsonPath("$.data.teamA.players[0].handle").value("player1"));
         }
     }
 
@@ -223,7 +221,7 @@ class MatchControllerIntegrationTest {
         @DisplayName("Should join with preferred side")
         void shouldJoinWithPreferredSide() throws Exception {
             MatchEntity match = createTestMatch();
-            JoinMatchRequest request = new JoinMatchRequest(TeamSide.B);
+            JoinMatchRequest request = new JoinMatchRequest(match.getId(), TeamSide.B, null);
 
             mockMvc.perform(post("/api/matches/" + match.getId() + "/join")
                             .header("Authorization", "Bearer " + accessToken2)
