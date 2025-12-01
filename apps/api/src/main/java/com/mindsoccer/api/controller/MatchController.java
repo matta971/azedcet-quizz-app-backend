@@ -86,9 +86,9 @@ public class MatchController {
         MatchEntity match = matchService.createMatch(
                 principal.getId(),
                 principal.getHandle(),
-                request.ranked() != null ? request.ranked() : true,
-                request.duo() != null ? request.duo() : false,
-                request.preferredSide()
+                !request.isPrivate(),  // ranked = not private
+                request.teamSize() == 2,  // duo = teamSize 2
+                null  // preferredSide not in request
         );
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(toResponse(match)));
@@ -101,7 +101,7 @@ public class MatchController {
             @CurrentUser UserPrincipal principal,
             @Valid @RequestBody(required = false) JoinMatchRequest request
     ) {
-        TeamSide preferredSide = request != null ? request.preferredSide() : null;
+        TeamSide preferredSide = request != null ? request.team() : null;
         MatchEntity match = matchService.joinMatch(id, principal.getId(), principal.getHandle(), preferredSide);
         return ResponseEntity.ok(ApiResponse.success(toResponse(match)));
     }
@@ -113,7 +113,7 @@ public class MatchController {
             @CurrentUser UserPrincipal principal,
             @Valid @RequestBody(required = false) JoinMatchRequest request
     ) {
-        TeamSide preferredSide = request != null ? request.preferredSide() : null;
+        TeamSide preferredSide = request != null ? request.team() : null;
         MatchEntity match = matchService.joinByCode(code, principal.getId(), principal.getHandle(), preferredSide);
         return ResponseEntity.ok(ApiResponse.success(toResponse(match)));
     }

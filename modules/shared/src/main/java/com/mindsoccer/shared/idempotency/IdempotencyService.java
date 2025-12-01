@@ -37,7 +37,7 @@ public class IdempotencyService {
             return false;
         }
         Boolean exists = redisTemplate.hasKey(buildKey(key));
-        return Boolean.TRUE.equals(exists);
+        return exists;
     }
 
     /**

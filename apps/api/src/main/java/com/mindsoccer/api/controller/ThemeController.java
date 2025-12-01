@@ -152,8 +152,9 @@ public class ThemeController {
     private ThemeResponse toResponse(ThemeEntity theme) {
         return new ThemeResponse(
                 theme.getId(),
-                theme.getCode(),
                 theme.getNameFr(),
+                theme.getDescription(),
+                0,  // questionCount - would need to be calculated
                 theme.getIconUrl()
         );
     }

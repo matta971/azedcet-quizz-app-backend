@@ -2,6 +2,7 @@ package com.mindsoccer.api.exception;
 
 import com.mindsoccer.protocol.dto.common.ApiResponse;
 import com.mindsoccer.shared.exception.*;
+import com.mindsoccer.shared.exception.MatchException;
 import com.mindsoccer.shared.i18n.I18nService;
 import com.mindsoccer.shared.i18n.SupportedLocale;
 import io.jsonwebtoken.ExpiredJwtException;

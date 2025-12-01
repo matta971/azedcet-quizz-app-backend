@@ -245,7 +245,7 @@ public class QuestionController {
                 question.getAlternativeAnswers(),
                 question.getQuestionFormat(),
                 question.getDifficulty(),
-                theme != null ? new ThemeResponse(theme.getId(), theme.getCode(), theme.getNameFr(), theme.getIconUrl()) : null,
+                theme != null ? new ThemeResponse(theme.getId(), theme.getNameFr(), theme.getDescription(), 0, theme.getIconUrl()) : null,
                 question.getRoundType(),
                 media != null ? new QuestionDetailResponse.MediaResponse(media.getId(), media.getMediaType().name(), media.getUrl(), media.getThumbnailUrl()) : null,
                 question.getChoices(),

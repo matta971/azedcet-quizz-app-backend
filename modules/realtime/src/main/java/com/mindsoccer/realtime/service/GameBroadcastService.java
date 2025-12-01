@@ -86,7 +86,14 @@ public class GameBroadcastService {
     public void broadcastRoundStarted(UUID matchId, RoundType roundType, int roundNumber) {
         WsMessage<RoundStartedPayload> message = WsMessage.of(
                 WsEventType.ROUND_STARTED,
-                new RoundStartedPayload(roundType, roundNumber, System.currentTimeMillis())
+                new RoundStartedPayload(
+                        UUID.randomUUID(),  // roundId
+                        roundType,          // type
+                        roundNumber,        // roundIndex
+                        null,               // instruction
+                        0,                  // totalQuestions
+                        0L                  // durationMs
+                )
         );
         broadcastToMatch(matchId, message);
     }
@@ -123,7 +130,19 @@ public class GameBroadcastService {
                                        boolean correct, int points, String correctAnswer) {
         WsMessage<AnswerResultPayload> message = WsMessage.of(
                 WsEventType.ANSWER_RESULT,
-                new AnswerResultPayload(playerId, team, correct, points, correctAnswer)
+                new AnswerResultPayload(
+                        null,           // questionId
+                        playerId,       // playerId
+                        null,           // playerHandle
+                        team,           // team
+                        correct,        // correct
+                        null,           // givenAnswer
+                        correctAnswer,  // expectedAnswer
+                        points,         // pointsAwarded
+                        0L,             // responseTimeMs
+                        0,              // newTeamScore
+                        false           // hasReplyRight
+                )
         );
         broadcastToMatch(matchId, message);
     }
@@ -158,9 +177,19 @@ public class GameBroadcastService {
      * Diffuse une pénalité.
      */
     public void broadcastPenalty(UUID matchId, UUID playerId, TeamSide team, int penaltyCount, String reason) {
+        boolean suspended = penaltyCount >= 5;
         WsMessage<PenaltyPayload> message = WsMessage.of(
                 WsEventType.PENALTY,
-                new PenaltyPayload(playerId, team, penaltyCount, reason, penaltyCount >= 5)
+                new PenaltyPayload(
+                        playerId,       // playerId
+                        null,           // playerHandle
+                        team,           // team
+                        reason,         // reason
+                        penaltyCount,   // penaltyCount
+                        suspended,      // suspended
+                        suspended ? 40 : 0,  // suspensionPointsRemaining
+                        false           // bonusQuestionForOpponent
+                )
         );
         broadcastToMatch(matchId, message);
     }

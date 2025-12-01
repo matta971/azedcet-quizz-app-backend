@@ -37,7 +37,7 @@ class ValidationExceptionTest {
     @Test
     @DisplayName("Should handle null field errors map")
     void shouldHandleNullFieldErrorsMap() {
-        ValidationException ex = new ValidationException(ErrorCode.BAD_REQUEST, (Map<String, String>) null);
+        ValidationException ex = new ValidationException(ErrorCode.BAD_REQUEST, null);
 
         assertThat(ex.getFieldErrors()).isEmpty();
     }

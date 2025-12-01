@@ -1,22 +1,21 @@
 package com.mindsoccer.realtime.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
-import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
+import org.springframework.messaging.Message;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 
 /**
- * Configuration de sécurité WebSocket.
- * Étend AbstractSecurityWebSocketMessageBrokerConfigurer pour configurer
- * les règles d'autorisation sur les messages STOMP.
+ * Configuration de sécurité WebSocket pour Spring Security 6.
  */
 @Configuration
-public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+public class WebSocketSecurityConfig {
 
-    @Override
-    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+    @Bean
+    public AuthorizationManager<Message<?>> messageAuthorizationManager(
+            MessageMatcherDelegatingAuthorizationManager.Builder messages) {
         messages
-                // Permettre à tous de se connecter au broker
-                .nullDestMatcher().permitAll()
                 // Les souscriptions aux topics de match nécessitent une authentification
                 .simpSubscribeDestMatchers("/topic/match/**").authenticated()
                 .simpSubscribeDestMatchers("/user/queue/**").authenticated()
@@ -24,11 +23,7 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
                 .simpDestMatchers("/app/**").authenticated()
                 // Tout le reste est autorisé
                 .anyMessage().permitAll();
-    }
 
-    @Override
-    protected boolean sameOriginDisabled() {
-        // Désactiver la protection CSRF pour les WebSockets (géré par JWT)
-        return true;
+        return messages.build();
     }
 }
