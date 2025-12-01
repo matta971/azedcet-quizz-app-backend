@@ -32,10 +32,10 @@ class PenaltyServiceTest {
         @DisplayName("Should create penalty info with incremented count")
         void shouldCreatePenaltyInfoWithIncrementedCount() {
             PenaltyInfo penalty = penaltyService.recordPenalty(
-                    playerId, TeamSide.HOME, 2, "Faute de jeu");
+                    playerId, TeamSide.A, 2, "Faute de jeu");
 
             assertThat(penalty.playerId()).isEqualTo(playerId);
-            assertThat(penalty.teamSide()).isEqualTo(TeamSide.HOME);
+            assertThat(penalty.teamSide()).isEqualTo(TeamSide.A);
             assertThat(penalty.reason()).isEqualTo("Faute de jeu");
             assertThat(penalty.penaltyNumber()).isEqualTo(3);
             assertThat(penalty.timestamp()).isNotNull();
@@ -45,7 +45,7 @@ class PenaltyServiceTest {
         @DisplayName("Should not trigger suspension below threshold")
         void shouldNotTriggerSuspensionBelowThreshold() {
             PenaltyInfo penalty = penaltyService.recordPenalty(
-                    playerId, TeamSide.HOME, 3, "Test");
+                    playerId, TeamSide.A, 3, "Test");
 
             assertThat(penalty.penaltyNumber()).isEqualTo(4);
             assertThat(penalty.triggersSuspension()).isFalse();
@@ -55,7 +55,7 @@ class PenaltyServiceTest {
         @DisplayName("Should trigger suspension at threshold")
         void shouldTriggerSuspensionAtThreshold() {
             PenaltyInfo penalty = penaltyService.recordPenalty(
-                    playerId, TeamSide.HOME, 4, "Test");
+                    playerId, TeamSide.A, 4, "Test");
 
             assertThat(penalty.penaltyNumber()).isEqualTo(5);
             assertThat(penalty.triggersSuspension()).isTrue();

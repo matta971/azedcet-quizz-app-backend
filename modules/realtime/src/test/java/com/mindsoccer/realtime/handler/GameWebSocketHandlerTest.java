@@ -69,18 +69,18 @@ class GameWebSocketHandlerTest {
         void shouldBroadcastBuzzerWhenPrincipalValid() {
             when(principal.getName()).thenReturn(playerId.toString());
             GameWebSocketHandler.BuzzerRequest request = new GameWebSocketHandler.BuzzerRequest(
-                    TeamSide.HOME, System.currentTimeMillis());
+                    TeamSide.A, System.currentTimeMillis());
 
             handler.handleBuzzer(matchId, request, principal);
 
-            verify(broadcastService).broadcastBuzzer(matchId, playerId, TeamSide.HOME);
+            verify(broadcastService).broadcastBuzzer(matchId, playerId, TeamSide.A);
         }
 
         @Test
         @DisplayName("Should not broadcast buzzer when principal is null")
         void shouldNotBroadcastBuzzerWhenPrincipalNull() {
             GameWebSocketHandler.BuzzerRequest request = new GameWebSocketHandler.BuzzerRequest(
-                    TeamSide.HOME, System.currentTimeMillis());
+                    TeamSide.A, System.currentTimeMillis());
 
             handler.handleBuzzer(matchId, request, null);
 
@@ -97,7 +97,7 @@ class GameWebSocketHandlerTest {
         void shouldProcessAnswerWhenPrincipalValid() {
             when(principal.getName()).thenReturn(playerId.toString());
             GameWebSocketHandler.AnswerRequest request = new GameWebSocketHandler.AnswerRequest(
-                    "Paris", UUID.randomUUID(), TeamSide.HOME,
+                    "Paris", UUID.randomUUID(), TeamSide.A,
                     System.currentTimeMillis(), "idempotency-key");
 
             // Should not throw
@@ -109,7 +109,7 @@ class GameWebSocketHandlerTest {
         @DisplayName("Should not process answer when principal is null")
         void shouldNotProcessAnswerWhenPrincipalNull() {
             GameWebSocketHandler.AnswerRequest request = new GameWebSocketHandler.AnswerRequest(
-                    "Paris", UUID.randomUUID(), TeamSide.HOME,
+                    "Paris", UUID.randomUUID(), TeamSide.A,
                     System.currentTimeMillis(), "idempotency-key");
 
             handler.handleAnswer(matchId, request, null);
@@ -128,7 +128,7 @@ class GameWebSocketHandlerTest {
         void shouldProcessThemeSelectionWhenPrincipalValid() {
             when(principal.getName()).thenReturn(playerId.toString());
             GameWebSocketHandler.ThemeSelectionRequest request = new GameWebSocketHandler.ThemeSelectionRequest(
-                    UUID.randomUUID(), TeamSide.HOME);
+                    UUID.randomUUID(), TeamSide.A);
 
             assertThatNoException().isThrownBy(() ->
                     handler.handleThemeSelection(matchId, request, principal));
@@ -138,7 +138,7 @@ class GameWebSocketHandlerTest {
         @DisplayName("Should not process theme selection when principal is null")
         void shouldNotProcessThemeSelectionWhenPrincipalNull() {
             GameWebSocketHandler.ThemeSelectionRequest request = new GameWebSocketHandler.ThemeSelectionRequest(
-                    UUID.randomUUID(), TeamSide.HOME);
+                    UUID.randomUUID(), TeamSide.A);
 
             handler.handleThemeSelection(matchId, request, null);
 
@@ -155,7 +155,7 @@ class GameWebSocketHandlerTest {
         void shouldProcessSuspensionChoiceWhenPrincipalValid() {
             when(principal.getName()).thenReturn(playerId.toString());
             GameWebSocketHandler.SuspensionChoiceRequest request = new GameWebSocketHandler.SuspensionChoiceRequest(
-                    "FOUR_QUESTIONS", TeamSide.AWAY);
+                    "FOUR_QUESTIONS", TeamSide.B);
 
             assertThatNoException().isThrownBy(() ->
                     handler.handleSuspensionChoice(matchId, request, principal));
@@ -165,7 +165,7 @@ class GameWebSocketHandlerTest {
         @DisplayName("Should not process suspension choice when principal is null")
         void shouldNotProcessSuspensionChoiceWhenPrincipalNull() {
             GameWebSocketHandler.SuspensionChoiceRequest request = new GameWebSocketHandler.SuspensionChoiceRequest(
-                    "IMMEDIATE_40", TeamSide.AWAY);
+                    "IMMEDIATE_40", TeamSide.B);
 
             handler.handleSuspensionChoice(matchId, request, null);
 
@@ -195,9 +195,9 @@ class GameWebSocketHandlerTest {
         void buzzerRequestShouldHaveCorrectFields() {
             long timestamp = System.currentTimeMillis();
             GameWebSocketHandler.BuzzerRequest request = new GameWebSocketHandler.BuzzerRequest(
-                    TeamSide.HOME, timestamp);
+                    TeamSide.A, timestamp);
 
-            assertThat(request.team()).isEqualTo(TeamSide.HOME);
+            assertThat(request.team()).isEqualTo(TeamSide.A);
             assertThat(request.clientTimestamp()).isEqualTo(timestamp);
         }
 
@@ -209,11 +209,11 @@ class GameWebSocketHandlerTest {
             String idempotencyKey = "key-123";
 
             GameWebSocketHandler.AnswerRequest request = new GameWebSocketHandler.AnswerRequest(
-                    "Paris", questionId, TeamSide.AWAY, timestamp, idempotencyKey);
+                    "Paris", questionId, TeamSide.B, timestamp, idempotencyKey);
 
             assertThat(request.answer()).isEqualTo("Paris");
             assertThat(request.questionId()).isEqualTo(questionId);
-            assertThat(request.team()).isEqualTo(TeamSide.AWAY);
+            assertThat(request.team()).isEqualTo(TeamSide.B);
             assertThat(request.clientTimestamp()).isEqualTo(timestamp);
             assertThat(request.idempotencyKey()).isEqualTo(idempotencyKey);
         }
@@ -223,20 +223,20 @@ class GameWebSocketHandlerTest {
         void themeSelectionRequestShouldHaveCorrectFields() {
             UUID themeId = UUID.randomUUID();
             GameWebSocketHandler.ThemeSelectionRequest request = new GameWebSocketHandler.ThemeSelectionRequest(
-                    themeId, TeamSide.HOME);
+                    themeId, TeamSide.A);
 
             assertThat(request.themeId()).isEqualTo(themeId);
-            assertThat(request.team()).isEqualTo(TeamSide.HOME);
+            assertThat(request.team()).isEqualTo(TeamSide.A);
         }
 
         @Test
         @DisplayName("SuspensionChoiceRequest should have correct fields")
         void suspensionChoiceRequestShouldHaveCorrectFields() {
             GameWebSocketHandler.SuspensionChoiceRequest request = new GameWebSocketHandler.SuspensionChoiceRequest(
-                    "FOUR_QUESTIONS", TeamSide.AWAY);
+                    "FOUR_QUESTIONS", TeamSide.B);
 
             assertThat(request.choice()).isEqualTo("FOUR_QUESTIONS");
-            assertThat(request.team()).isEqualTo(TeamSide.AWAY);
+            assertThat(request.team()).isEqualTo(TeamSide.B);
         }
     }
 }

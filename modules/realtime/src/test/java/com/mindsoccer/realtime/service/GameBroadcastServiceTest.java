@@ -148,7 +148,7 @@ class GameBroadcastServiceTest {
         @Test
         @DisplayName("Should broadcast round ended")
         void shouldBroadcastRoundEnded() {
-            broadcastService.broadcastRoundEnded(matchId, RoundType.SMASH, 30, 20);
+            broadcastService.broadcastRoundEnded(matchId, RoundType.SMASH_A, 30, 20);
 
             verify(messagingTemplate).convertAndSend(
                     eq("/topic/match/" + matchId),
@@ -170,7 +170,7 @@ class GameBroadcastServiceTest {
             UUID questionId = UUID.randomUUID();
 
             broadcastService.broadcastQuestion(matchId, questionId, "What is 2+2?",
-                    10000, TeamSide.HOME, 1);
+                    10000, TeamSide.A, 1);
 
             verify(messagingTemplate).convertAndSend(
                     eq("/topic/match/" + matchId),
@@ -184,7 +184,7 @@ class GameBroadcastServiceTest {
         @Test
         @DisplayName("Should broadcast answer result")
         void shouldBroadcastAnswerResult() {
-            broadcastService.broadcastAnswerResult(matchId, playerId, TeamSide.HOME,
+            broadcastService.broadcastAnswerResult(matchId, playerId, TeamSide.A,
                     true, 10, "Paris");
 
             verify(messagingTemplate).convertAndSend(
@@ -218,7 +218,7 @@ class GameBroadcastServiceTest {
         @Test
         @DisplayName("Should broadcast buzzer")
         void shouldBroadcastBuzzer() {
-            broadcastService.broadcastBuzzer(matchId, playerId, TeamSide.AWAY);
+            broadcastService.broadcastBuzzer(matchId, playerId, TeamSide.B);
 
             verify(messagingTemplate).convertAndSend(
                     eq("/topic/match/" + matchId),
@@ -237,7 +237,7 @@ class GameBroadcastServiceTest {
         @Test
         @DisplayName("Should broadcast penalty")
         void shouldBroadcastPenalty() {
-            broadcastService.broadcastPenalty(matchId, playerId, TeamSide.HOME, 3, "Faute");
+            broadcastService.broadcastPenalty(matchId, playerId, TeamSide.A, 3, "Faute");
 
             verify(messagingTemplate).convertAndSend(
                     eq("/topic/match/" + matchId),
@@ -251,7 +251,7 @@ class GameBroadcastServiceTest {
         @Test
         @DisplayName("Should broadcast suspension")
         void shouldBroadcastSuspension() {
-            broadcastService.broadcastSuspension(matchId, playerId, TeamSide.HOME, 40);
+            broadcastService.broadcastSuspension(matchId, playerId, TeamSide.A, 40);
 
             verify(messagingTemplate).convertAndSend(
                     eq("/topic/match/" + matchId),
@@ -265,7 +265,7 @@ class GameBroadcastServiceTest {
         @Test
         @DisplayName("Should broadcast suspension ended")
         void shouldBroadcastSuspensionEnded() {
-            broadcastService.broadcastSuspensionEnded(matchId, playerId, TeamSide.AWAY);
+            broadcastService.broadcastSuspensionEnded(matchId, playerId, TeamSide.B);
 
             verify(messagingTemplate).convertAndSend(
                     eq("/topic/match/" + matchId),
@@ -279,7 +279,7 @@ class GameBroadcastServiceTest {
         @Test
         @DisplayName("Should broadcast player joined")
         void shouldBroadcastPlayerJoined() {
-            broadcastService.broadcastPlayerJoined(matchId, playerId, "NewPlayer", TeamSide.HOME);
+            broadcastService.broadcastPlayerJoined(matchId, playerId, "NewPlayer", TeamSide.A);
 
             verify(messagingTemplate).convertAndSend(
                     eq("/topic/match/" + matchId),
@@ -293,7 +293,7 @@ class GameBroadcastServiceTest {
         @Test
         @DisplayName("Should broadcast player left")
         void shouldBroadcastPlayerLeft() {
-            broadcastService.broadcastPlayerLeft(matchId, playerId, TeamSide.HOME);
+            broadcastService.broadcastPlayerLeft(matchId, playerId, TeamSide.A);
 
             verify(messagingTemplate).convertAndSend(
                     eq("/topic/match/" + matchId),

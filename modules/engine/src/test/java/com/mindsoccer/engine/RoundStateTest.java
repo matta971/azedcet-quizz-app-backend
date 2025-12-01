@@ -63,7 +63,7 @@ class RoundStateTest {
             UUID questionId = UUID.randomUUID();
             UUID playerId = UUID.randomUUID();
             RoundState original = new RoundState(
-                    RoundType.SMASH,
+                    RoundType.SMASH_A,
                     RoundState.Phase.ANNOUNCE,
                     3,
                     questionId,
@@ -76,7 +76,7 @@ class RoundStateTest {
             RoundState updated = original.withPhase(RoundState.Phase.ANSWER_WINDOW);
 
             assertThat(updated.phase()).isEqualTo(RoundState.Phase.ANSWER_WINDOW);
-            assertThat(updated.type()).isEqualTo(RoundType.SMASH);
+            assertThat(updated.type()).isEqualTo(RoundType.SMASH_A);
             assertThat(updated.questionIndex()).isEqualTo(3);
             assertThat(updated.currentQuestionId()).isEqualTo(questionId);
             assertThat(updated.activePlayerId()).isEqualTo(playerId);
@@ -163,7 +163,7 @@ class RoundStateTest {
         @DisplayName("Different states should not be equal")
         void differentStatesShouldNotBeEqual() {
             RoundState state1 = RoundState.initial(RoundType.CASCADE);
-            RoundState state2 = RoundState.initial(RoundType.SMASH);
+            RoundState state2 = RoundState.initial(RoundType.SMASH_A);
 
             assertThat(state1).isNotEqualTo(state2);
         }

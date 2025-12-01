@@ -32,10 +32,10 @@ class ScoringServiceTest {
         @DisplayName("Should calculate correct answer points")
         void shouldCalculateCorrectAnswerPoints() {
             ScoreResult result = scoringService.calculateCorrectAnswer(
-                    RoundType.CASCADE, TeamSide.HOME, playerId);
+                    RoundType.CASCADE, TeamSide.A, playerId);
 
             assertThat(result.points()).isPositive();
-            assertThat(result.teamSide()).isEqualTo(TeamSide.HOME);
+            assertThat(result.teamSide()).isEqualTo(TeamSide.A);
             assertThat(result.playerId()).isEqualTo(playerId);
             assertThat(result.isPenalty()).isFalse();
         }
@@ -48,7 +48,7 @@ class ScoringServiceTest {
         @Test
         @DisplayName("Should calculate first cascade answer as 10 points")
         void shouldCalculateFirstCascadeAnswer() {
-            ScoreResult result = scoringService.calculateCascadeScore(1, TeamSide.HOME, playerId);
+            ScoreResult result = scoringService.calculateCascadeScore(1, TeamSide.A, playerId);
 
             assertThat(result.points()).isEqualTo(10);
         }
@@ -57,10 +57,10 @@ class ScoringServiceTest {
         @DisplayName("Should calculate progressive cascade points")
         void shouldCalculateProgressiveCascadePoints() {
             // 1st = 10, 2nd = 15, 3rd = 20, 4th = 25, etc.
-            assertThat(scoringService.calculateCascadeScore(1, TeamSide.HOME, playerId).points()).isEqualTo(10);
-            assertThat(scoringService.calculateCascadeScore(2, TeamSide.HOME, playerId).points()).isEqualTo(15);
-            assertThat(scoringService.calculateCascadeScore(3, TeamSide.HOME, playerId).points()).isEqualTo(20);
-            assertThat(scoringService.calculateCascadeScore(4, TeamSide.HOME, playerId).points()).isEqualTo(25);
+            assertThat(scoringService.calculateCascadeScore(1, TeamSide.A, playerId).points()).isEqualTo(10);
+            assertThat(scoringService.calculateCascadeScore(2, TeamSide.A, playerId).points()).isEqualTo(15);
+            assertThat(scoringService.calculateCascadeScore(3, TeamSide.A, playerId).points()).isEqualTo(20);
+            assertThat(scoringService.calculateCascadeScore(4, TeamSide.A, playerId).points()).isEqualTo(25);
         }
     }
 
@@ -71,10 +71,10 @@ class ScoringServiceTest {
         @Test
         @DisplayName("Should calculate estocade points")
         void shouldCalculateEstocadePoints() {
-            ScoreResult result = scoringService.calculateEstocadeScore(TeamSide.AWAY, playerId);
+            ScoreResult result = scoringService.calculateEstocadeScore(TeamSide.B, playerId);
 
             assertThat(result.points()).isEqualTo(GameConstants.ESTOCADE_POINTS_PER_QUESTION);
-            assertThat(result.teamSide()).isEqualTo(TeamSide.AWAY);
+            assertThat(result.teamSide()).isEqualTo(TeamSide.B);
         }
     }
 
@@ -86,7 +86,7 @@ class ScoringServiceTest {
         @DisplayName("Should award bonus for fast completion")
         void shouldAwardBonusForFastCompletion() {
             ScoreResult result = scoringService.calculateRelaisBonus(
-                    TeamSide.HOME, GameConstants.RELAIS_BONUS_TIMEOUT_MS - 1000);
+                    TeamSide.A, GameConstants.RELAIS_BONUS_TIMEOUT_MS - 1000);
 
             assertThat(result.points()).isEqualTo(GameConstants.RELAIS_BONUS_POINTS);
             assertThat(result.isBonus()).isTrue();
@@ -96,7 +96,7 @@ class ScoringServiceTest {
         @DisplayName("Should not award bonus for slow completion")
         void shouldNotAwardBonusForSlowCompletion() {
             ScoreResult result = scoringService.calculateRelaisBonus(
-                    TeamSide.HOME, GameConstants.RELAIS_BONUS_TIMEOUT_MS + 1000);
+                    TeamSide.A, GameConstants.RELAIS_BONUS_TIMEOUT_MS + 1000);
 
             assertThat(result.points()).isZero();
         }
@@ -109,8 +109,8 @@ class ScoringServiceTest {
         @Test
         @DisplayName("Should give more points for early hints")
         void shouldGiveMorePointsForEarlyHints() {
-            int firstHintPoints = scoringService.calculateIdentificationScore(0, TeamSide.HOME, playerId).points();
-            int lastHintPoints = scoringService.calculateIdentificationScore(3, TeamSide.HOME, playerId).points();
+            int firstHintPoints = scoringService.calculateIdentificationScore(0, TeamSide.A, playerId).points();
+            int lastHintPoints = scoringService.calculateIdentificationScore(3, TeamSide.A, playerId).points();
 
             assertThat(firstHintPoints).isGreaterThan(lastHintPoints);
         }
@@ -124,7 +124,7 @@ class ScoringServiceTest {
         @DisplayName("Should award high threshold bonus")
         void shouldAwardHighThresholdBonus() {
             ScoreResult result = scoringService.calculateCimeBonus(
-                    GameConstants.CIME_BONUS_THRESHOLD_HIGH + 1, TeamSide.HOME);
+                    GameConstants.CIME_BONUS_THRESHOLD_HIGH + 1, TeamSide.A);
 
             assertThat(result.points()).isEqualTo(GameConstants.CIME_THRESHOLD_7_BONUS);
             assertThat(result.isBonus()).isTrue();
@@ -135,7 +135,7 @@ class ScoringServiceTest {
         void shouldAwardLowThresholdBonus() {
             int answers = GameConstants.CIME_BONUS_THRESHOLD_LOW + 1;
             if (answers <= GameConstants.CIME_BONUS_THRESHOLD_HIGH) {
-                ScoreResult result = scoringService.calculateCimeBonus(answers, TeamSide.HOME);
+                ScoreResult result = scoringService.calculateCimeBonus(answers, TeamSide.A);
                 assertThat(result.points()).isEqualTo(GameConstants.CIME_THRESHOLD_4_BONUS);
             }
         }
@@ -144,7 +144,7 @@ class ScoringServiceTest {
         @DisplayName("Should not award bonus below threshold")
         void shouldNotAwardBonusBelowThreshold() {
             ScoreResult result = scoringService.calculateCimeBonus(
-                    GameConstants.CIME_BONUS_THRESHOLD_LOW - 1, TeamSide.HOME);
+                    GameConstants.CIME_BONUS_THRESHOLD_LOW - 1, TeamSide.A);
 
             assertThat(result.points()).isZero();
         }
@@ -157,10 +157,10 @@ class ScoringServiceTest {
         @Test
         @DisplayName("Should calculate victory points")
         void shouldCalculateVictoryPoints() {
-            ScoreResult result = scoringService.calculateTirsAuButVictory(TeamSide.HOME);
+            ScoreResult result = scoringService.calculateTirsAuButVictory(TeamSide.A);
 
             assertThat(result.points()).isEqualTo(GameConstants.TIRS_AU_BUT_VICTORY_POINTS);
-            assertThat(result.teamSide()).isEqualTo(TeamSide.HOME);
+            assertThat(result.teamSide()).isEqualTo(TeamSide.A);
         }
     }
 
@@ -171,7 +171,7 @@ class ScoringServiceTest {
         @Test
         @DisplayName("Should calculate jackpot score")
         void shouldCalculateJackpotScore() {
-            ScoreResult result = scoringService.calculateJackpotScore(50, TeamSide.AWAY, playerId);
+            ScoreResult result = scoringService.calculateJackpotScore(50, TeamSide.B, playerId);
 
             assertThat(result.points()).isEqualTo(50);
             assertThat(result.playerId()).isEqualTo(playerId);
@@ -185,7 +185,7 @@ class ScoringServiceTest {
         @Test
         @DisplayName("Should calculate timeout penalty")
         void shouldCalculateTimeoutPenalty() {
-            ScoreResult result = scoringService.calculateSmashTimeoutPenalty(TeamSide.HOME, playerId);
+            ScoreResult result = scoringService.calculateSmashTimeoutPenalty(TeamSide.A, playerId);
 
             assertThat(result.points()).isNegative();
             assertThat(result.isPenalty()).isTrue();

@@ -161,4 +161,47 @@ public final class GameConstants {
 
     /** Taille équipe en mode duo */
     public static final int TEAM_DUO_SIZE = 2;
+
+    /** Taille équipe en mode solo */
+    public static final int TEAM_SIZE_SOLO = 1;
+
+    // ==================== MATCH ====================
+
+    /** Longueur du code de match (6 caractères) */
+    public static final int MATCH_CODE_LENGTH = 6;
+
+    /** Timeout buzzer (ms) */
+    public static final long BUZZER_TIMEOUT_MS = 5000;
+
+    // ==================== SMASH ====================
+
+    /** Nombre de questions SMASH */
+    public static final int SMASH_QUESTION_COUNT = 6;
+
+    /** Points pour bonne réponse SMASH */
+    public static final int SMASH_CORRECT_POINTS = 10;
+
+    /** Points pour vol SMASH (steal) */
+    public static final int SMASH_STEAL_POINTS = 10;
+
+    // ==================== CASCADE ====================
+
+    /** Points de base CASCADE (première question) */
+    public static final int CASCADE_BASE_POINTS = 10;
+
+    /** Incrément de points CASCADE */
+    public static final int CASCADE_INCREMENT = 10;
+
+    // ==================== SPRINT FINAL ====================
+
+    /** Nombre de questions SPRINT (alias SPRINT_FINAL) */
+    public static final int SPRINT_QUESTION_COUNT = SPRINT_FINAL_QUESTION_COUNT;
+
+    /** Points par question SPRINT FINAL */
+    public static final int SPRINT_POINTS_PER_QUESTION = 10;
+
+    // ==================== PENALTIES (compléments) ====================
+
+    /** Points de pénalité suspension */
+    public static final int PENALTY_SUSPENSION_POINTS = 40;
 }

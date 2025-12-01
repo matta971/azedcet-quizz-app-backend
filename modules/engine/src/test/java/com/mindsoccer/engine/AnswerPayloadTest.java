@@ -24,14 +24,14 @@ class AnswerPayloadTest {
 
         AnswerPayload payload = new AnswerPayload(
                 matchId, roundId, questionId, playerId,
-                TeamSide.HOME, "Paris", now, clientTimestamp, "key-123"
+                TeamSide.A, "Paris", now, clientTimestamp, "key-123"
         );
 
         assertThat(payload.matchId()).isEqualTo(matchId);
         assertThat(payload.roundId()).isEqualTo(roundId);
         assertThat(payload.questionId()).isEqualTo(questionId);
         assertThat(payload.playerId()).isEqualTo(playerId);
-        assertThat(payload.team()).isEqualTo(TeamSide.HOME);
+        assertThat(payload.team()).isEqualTo(TeamSide.A);
         assertThat(payload.answer()).isEqualTo("Paris");
         assertThat(payload.submittedAt()).isEqualTo(now);
         assertThat(payload.clientTimestampMs()).isEqualTo(clientTimestamp);
@@ -46,7 +46,7 @@ class AnswerPayloadTest {
 
         AnswerPayload payload = new AnswerPayload(
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                TeamSide.AWAY, "London", now, clientTimestamp, "key"
+                TeamSide.B, "London", now, clientTimestamp, "key"
         );
 
         assertThat(payload.latencyMs()).isEqualTo(150);
@@ -60,7 +60,7 @@ class AnswerPayloadTest {
 
         AnswerPayload payload = new AnswerPayload(
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                TeamSide.HOME, "Test", now, clientTimestamp, "key"
+                TeamSide.A, "Test", now, clientTimestamp, "key"
         );
 
         assertThat(payload.latencyMs()).isZero();
@@ -74,7 +74,7 @@ class AnswerPayloadTest {
 
         AnswerPayload payload = new AnswerPayload(
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                TeamSide.HOME, "Test", now, clientTimestamp, "key"
+                TeamSide.A, "Test", now, clientTimestamp, "key"
         );
 
         assertThat(payload.latencyMs()).isEqualTo(-50);
@@ -87,15 +87,15 @@ class AnswerPayloadTest {
 
         AnswerPayload homePayload = new AnswerPayload(
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                TeamSide.HOME, "Test", now, now.toEpochMilli(), "key1"
+                TeamSide.A, "Test", now, now.toEpochMilli(), "key1"
         );
 
         AnswerPayload awayPayload = new AnswerPayload(
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                TeamSide.AWAY, "Test", now, now.toEpochMilli(), "key2"
+                TeamSide.B, "Test", now, now.toEpochMilli(), "key2"
         );
 
-        assertThat(homePayload.team()).isEqualTo(TeamSide.HOME);
-        assertThat(awayPayload.team()).isEqualTo(TeamSide.AWAY);
+        assertThat(homePayload.team()).isEqualTo(TeamSide.A);
+        assertThat(awayPayload.team()).isEqualTo(TeamSide.B);
     }
 }

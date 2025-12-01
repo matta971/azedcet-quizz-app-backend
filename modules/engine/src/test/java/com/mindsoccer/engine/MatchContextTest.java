@@ -35,11 +35,11 @@ class MatchContextTest {
                 RoundType.CASCADE,
                 2,
                 Instant.now().minusSeconds(30),
-                Map.of(TeamSide.HOME, 50, TeamSide.AWAY, 40),
-                Map.of(TeamSide.HOME, List.of(player1Id), TeamSide.AWAY, List.of(player2Id)),
+                Map.of(TeamSide.A, 50, TeamSide.B, 40),
+                Map.of(TeamSide.A, List.of(player1Id), TeamSide.B, List.of(player2Id)),
                 Map.of(player1Id, 2, player2Id, 0),
                 Map.of(player1Id, false, player2Id, false),
-                TeamSide.HOME,
+                TeamSide.A,
                 RoundState.initial(RoundType.CASCADE)
         );
     }
@@ -55,16 +55,16 @@ class MatchContextTest {
             assertThat(context.status()).isEqualTo(MatchStatus.IN_PROGRESS);
             assertThat(context.currentRoundType()).isEqualTo(RoundType.CASCADE);
             assertThat(context.roundIndex()).isEqualTo(2);
-            assertThat(context.scores()).containsEntry(TeamSide.HOME, 50);
-            assertThat(context.scores()).containsEntry(TeamSide.AWAY, 40);
-            assertThat(context.leadingTeam()).isEqualTo(TeamSide.HOME);
+            assertThat(context.scores()).containsEntry(TeamSide.A, 50);
+            assertThat(context.scores()).containsEntry(TeamSide.B, 40);
+            assertThat(context.leadingTeam()).isEqualTo(TeamSide.A);
         }
 
         @Test
         @DisplayName("Should have correct player lists")
         void shouldHaveCorrectPlayerLists() {
-            assertThat(context.players().get(TeamSide.HOME)).contains(player1Id);
-            assertThat(context.players().get(TeamSide.AWAY)).contains(player2Id);
+            assertThat(context.players().get(TeamSide.A)).contains(player1Id);
+            assertThat(context.players().get(TeamSide.B)).contains(player2Id);
         }
     }
 
@@ -88,11 +88,11 @@ class MatchContextTest {
                     RoundType.CASCADE,
                     2,
                     Instant.now(),
-                    Map.of(TeamSide.HOME, 50, TeamSide.AWAY, 40),
-                    Map.of(TeamSide.HOME, List.of(player1Id), TeamSide.AWAY, List.of(player2Id)),
+                    Map.of(TeamSide.A, 50, TeamSide.B, 40),
+                    Map.of(TeamSide.A, List.of(player1Id), TeamSide.B, List.of(player2Id)),
                     Map.of(player1Id, 5),
                     Map.of(player1Id, true),
-                    TeamSide.HOME,
+                    TeamSide.A,
                     RoundState.initial(RoundType.CASCADE)
             );
 
@@ -145,7 +145,7 @@ class MatchContextTest {
             MatchContext freshContext = new MatchContext(
                     matchId,
                     MatchStatus.IN_PROGRESS,
-                    RoundType.SMASH,
+                    RoundType.SMASH_A,
                     1,
                     start,
                     Map.of(),
@@ -153,7 +153,7 @@ class MatchContextTest {
                     Map.of(),
                     Map.of(),
                     null,
-                    RoundState.initial(RoundType.SMASH)
+                    RoundState.initial(RoundType.SMASH_A)
             );
 
             Thread.sleep(100);

@@ -21,10 +21,10 @@ class ScoreResultTest {
         @Test
         @DisplayName("Should create team score result")
         void shouldCreateTeamScoreResult() {
-            ScoreResult result = ScoreResult.forTeam(50, TeamSide.HOME, "Victory bonus");
+            ScoreResult result = ScoreResult.forTeam(50, TeamSide.A, "Victory bonus");
 
             assertThat(result.points()).isEqualTo(50);
-            assertThat(result.teamSide()).isEqualTo(TeamSide.HOME);
+            assertThat(result.teamSide()).isEqualTo(TeamSide.A);
             assertThat(result.playerId()).isNull();
             assertThat(result.reason()).isEqualTo("Victory bonus");
             assertThat(result.isBonus()).isFalse();
@@ -39,10 +39,10 @@ class ScoreResultTest {
         @Test
         @DisplayName("Should create player score result")
         void shouldCreatePlayerScoreResult() {
-            ScoreResult result = ScoreResult.forPlayer(10, TeamSide.AWAY, playerId, "Correct answer");
+            ScoreResult result = ScoreResult.forPlayer(10, TeamSide.B, playerId, "Correct answer");
 
             assertThat(result.points()).isEqualTo(10);
-            assertThat(result.teamSide()).isEqualTo(TeamSide.AWAY);
+            assertThat(result.teamSide()).isEqualTo(TeamSide.B);
             assertThat(result.playerId()).isEqualTo(playerId);
             assertThat(result.reason()).isEqualTo("Correct answer");
             assertThat(result.isBonus()).isFalse();
@@ -57,10 +57,10 @@ class ScoreResultTest {
         @Test
         @DisplayName("Should create team bonus result")
         void shouldCreateTeamBonusResult() {
-            ScoreResult result = ScoreResult.bonus(20, TeamSide.HOME, "Speed bonus");
+            ScoreResult result = ScoreResult.bonus(20, TeamSide.A, "Speed bonus");
 
             assertThat(result.points()).isEqualTo(20);
-            assertThat(result.teamSide()).isEqualTo(TeamSide.HOME);
+            assertThat(result.teamSide()).isEqualTo(TeamSide.A);
             assertThat(result.playerId()).isNull();
             assertThat(result.reason()).isEqualTo("Speed bonus");
             assertThat(result.isBonus()).isTrue();
@@ -70,7 +70,7 @@ class ScoreResultTest {
         @Test
         @DisplayName("Should create player bonus result")
         void shouldCreatePlayerBonusResult() {
-            ScoreResult result = ScoreResult.bonus(15, TeamSide.HOME, playerId, "MVP bonus");
+            ScoreResult result = ScoreResult.bonus(15, TeamSide.A, playerId, "MVP bonus");
 
             assertThat(result.points()).isEqualTo(15);
             assertThat(result.playerId()).isEqualTo(playerId);
@@ -85,10 +85,10 @@ class ScoreResultTest {
         @Test
         @DisplayName("Should create penalty result with negative points")
         void shouldCreatePenaltyResultWithNegativePoints() {
-            ScoreResult result = ScoreResult.penalty(10, TeamSide.AWAY, playerId, "Foul");
+            ScoreResult result = ScoreResult.penalty(10, TeamSide.B, playerId, "Foul");
 
             assertThat(result.points()).isEqualTo(-10);
-            assertThat(result.teamSide()).isEqualTo(TeamSide.AWAY);
+            assertThat(result.teamSide()).isEqualTo(TeamSide.B);
             assertThat(result.playerId()).isEqualTo(playerId);
             assertThat(result.reason()).isEqualTo("Foul");
             assertThat(result.isBonus()).isFalse();

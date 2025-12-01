@@ -12,8 +12,8 @@ class GameConstantsTest {
     @DisplayName("Team size should be positive")
     void teamSizeShouldBePositive() {
         assertThat(GameConstants.TEAM_SIZE_SOLO).isPositive();
-        assertThat(GameConstants.TEAM_SIZE_DUO).isPositive();
-        assertThat(GameConstants.TEAM_SIZE_DUO).isGreaterThan(GameConstants.TEAM_SIZE_SOLO);
+        assertThat(GameConstants.TEAM_DUO_SIZE).isPositive();
+        assertThat(GameConstants.TEAM_DUO_SIZE).isGreaterThan(GameConstants.TEAM_SIZE_SOLO);
     }
 
     @Test

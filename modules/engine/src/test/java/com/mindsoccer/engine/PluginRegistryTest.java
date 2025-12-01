@@ -22,7 +22,7 @@ class PluginRegistryTest {
     void setUp() {
         // Create mock plugins
         cascadePlugin = new TestPlugin(RoundType.CASCADE);
-        smashPlugin = new TestPlugin(RoundType.SMASH);
+        smashPlugin = new TestPlugin(RoundType.SMASH_A);
 
         registry = new PluginRegistry(List.of(cascadePlugin, smashPlugin));
     }
@@ -56,9 +56,9 @@ class PluginRegistryTest {
         @Test
         @DisplayName("Should return plugin for registered type")
         void shouldReturnPluginForRegisteredType() {
-            RulePlugin plugin = registry.getPluginOrThrow(RoundType.SMASH);
+            RulePlugin plugin = registry.getPluginOrThrow(RoundType.SMASH_A);
 
-            assertThat(plugin.type()).isEqualTo(RoundType.SMASH);
+            assertThat(plugin.type()).isEqualTo(RoundType.SMASH_A);
         }
 
         @Test
@@ -78,7 +78,7 @@ class PluginRegistryTest {
         @DisplayName("Should return true for registered type")
         void shouldReturnTrueForRegisteredType() {
             assertThat(registry.hasPlugin(RoundType.CASCADE)).isTrue();
-            assertThat(registry.hasPlugin(RoundType.SMASH)).isTrue();
+            assertThat(registry.hasPlugin(RoundType.SMASH_A)).isTrue();
         }
 
         @Test
@@ -98,7 +98,7 @@ class PluginRegistryTest {
             List<RoundType> types = registry.getSupportedTypes();
 
             assertThat(types).hasSize(2);
-            assertThat(types).contains(RoundType.CASCADE, RoundType.SMASH);
+            assertThat(types).contains(RoundType.CASCADE, RoundType.SMASH_A);
         }
 
         @Test

@@ -123,7 +123,7 @@ class QuestionServiceTest {
             QuestionEntity existing = new QuestionEntity("Old text", "Old answer");
             QuestionEntity updates = new QuestionEntity("New text", "New answer");
             updates.setDifficulty(Difficulty.HARD);
-            updates.setRoundType(RoundType.SMASH);
+            updates.setRoundType(RoundType.SMASH_A);
 
             when(questionRepository.findById(id)).thenReturn(Optional.of(existing));
             when(questionRepository.save(any())).thenReturn(existing);
@@ -214,14 +214,14 @@ class QuestionServiceTest {
                     .themeId(themeId)
                     .roundType(RoundType.CASCADE)
                     .difficulty(Difficulty.EASY)
-                    .format(QuestionFormat.MCQ)
+                    .format(QuestionFormat.MULTIPLE_CHOICE)
                     .searchText("capital")
                     .build();
 
             assertThat(criteria.themeId()).isEqualTo(themeId);
             assertThat(criteria.roundType()).isEqualTo(RoundType.CASCADE);
             assertThat(criteria.difficulty()).isEqualTo(Difficulty.EASY);
-            assertThat(criteria.format()).isEqualTo(QuestionFormat.MCQ);
+            assertThat(criteria.format()).isEqualTo(QuestionFormat.MULTIPLE_CHOICE);
             assertThat(criteria.searchText()).isEqualTo("capital");
         }
     }
