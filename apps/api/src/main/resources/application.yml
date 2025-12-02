@@ -16,7 +16,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     open-in-view: false
     properties:
       hibernate:
@@ -38,13 +38,11 @@ server:
 mindsoccer:
   security:
     jwt:
-      secret: ${JWT_SECRET:change-me-in-production}
+      secret: ${JWT_SECRET:this-is-a-very-long-secret-key-for-development-only-32chars}
       expiration-ms: 3600000
       refresh-expiration-ms: 604800000
     cors:
-      allowed-origins:
-        - http://localhost:3000
-        - http://localhost:19006
+      allowed-origins: http://localhost:3000,http://localhost:19006,http://localhost:8081
 
   game:
     tick-interval-ms: 100

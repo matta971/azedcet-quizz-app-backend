@@ -7,7 +7,6 @@ import com.mindsoccer.protocol.enums.RoundType;
 import com.mindsoccer.protocol.enums.TeamSide;
 import com.mindsoccer.scoring.service.AnswerValidationService;
 import com.mindsoccer.scoring.service.ScoringService;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -26,7 +25,7 @@ import java.util.Random;
  * - Super Jackpot: si on obtient 3 fois le x3, bonus de +30 points
  */
 @Component
-@Profile("!test")
+
 public class JackpotPlugin extends AbstractRulePlugin {
 
     private static final int TOTAL_QUESTIONS = 6;

@@ -8,7 +8,6 @@ import com.mindsoccer.protocol.enums.TeamSide;
 import com.mindsoccer.scoring.service.AnswerValidationService;
 import com.mindsoccer.scoring.service.ScoringService;
 import com.mindsoccer.shared.util.GameConstants;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -25,7 +24,7 @@ import java.util.Map;
  * - Si smash et mauvaise réponse: +10 points pour l'équipe d'origine
  */
 @Component
-@Profile("!test")
+
 public class SmashPlugin extends AbstractRulePlugin {
 
     private static final String SMASHED_KEY = "smashed";

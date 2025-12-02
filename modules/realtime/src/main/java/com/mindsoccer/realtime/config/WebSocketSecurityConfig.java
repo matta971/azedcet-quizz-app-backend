@@ -1,31 +1,27 @@
 package com.mindsoccer.realtime.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.messaging.Message;
-import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
+import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
+import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
 
 /**
  * Configuration de sécurité WebSocket pour Spring Security 6.
+ * Pour l'instant, nous permettons toutes les connexions WebSocket.
+ * L'authentification est gérée au niveau HTTP (JWT) avant l'upgrade WebSocket.
  */
 @Configuration
-@Profile("!test")
-public class WebSocketSecurityConfig {
+public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
-    @Bean
-    public AuthorizationManager<Message<?>> messageAuthorizationManager(
-            MessageMatcherDelegatingAuthorizationManager.Builder messages) {
-        messages
-                // Les souscriptions aux topics de match nécessitent une authentification
-                .simpSubscribeDestMatchers("/topic/match/**").authenticated()
-                .simpSubscribeDestMatchers("/user/queue/**").authenticated()
-                // Les messages vers /app nécessitent une authentification
-                .simpDestMatchers("/app/**").authenticated()
-                // Tout le reste est autorisé
-                .anyMessage().permitAll();
+    @Override
+    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+        // Permettre toutes les connexions pour l'instant
+        // L'authentification est vérifiée au niveau HTTP/JWT
+        messages.anyMessage().permitAll();
+    }
 
-        return messages.build();
+    @Override
+    protected boolean sameOriginDisabled() {
+        // Désactiver la vérification CSRF pour les WebSockets (nécessaire pour SockJS)
+        return true;
     }
 }

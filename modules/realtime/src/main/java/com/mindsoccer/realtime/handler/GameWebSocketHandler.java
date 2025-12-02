@@ -6,7 +6,6 @@ import com.mindsoccer.protocol.enums.TeamSide;
 import com.mindsoccer.realtime.service.GameBroadcastService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -21,7 +20,7 @@ import java.util.UUID;
  * Gestionnaire WebSocket pour les événements de jeu.
  */
 @Controller
-@Profile("!test")
+
 public class GameWebSocketHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GameWebSocketHandler.class);

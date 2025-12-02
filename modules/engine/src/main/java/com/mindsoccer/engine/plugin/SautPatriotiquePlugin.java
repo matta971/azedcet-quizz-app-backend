@@ -7,7 +7,6 @@ import com.mindsoccer.protocol.enums.RoundType;
 import com.mindsoccer.protocol.enums.TeamSide;
 import com.mindsoccer.scoring.service.AnswerValidationService;
 import com.mindsoccer.scoring.service.ScoringService;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -24,7 +23,7 @@ import java.util.Map;
  * - Bonus "Patriote" pour 5/5: +20 points
  */
 @Component
-@Profile("!test")
+
 public class SautPatriotiquePlugin extends AbstractRulePlugin {
 
     private static final int TOTAL_QUESTIONS = 5;

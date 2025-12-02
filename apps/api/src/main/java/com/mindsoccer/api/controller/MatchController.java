@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.UUID;
 @RequestMapping("/api/matches")
 @Tag(name = "Matches", description = "Gestion des matchs")
 @SecurityRequirement(name = "bearerAuth")
+@Transactional(readOnly = true)
 public class MatchController {
 
     private final MatchService matchService;
@@ -79,6 +81,7 @@ public class MatchController {
 
     @PostMapping
     @Operation(summary = "Créer un match", description = "Créer un nouveau match")
+    @Transactional
     public ResponseEntity<ApiResponse<MatchResponse>> createMatch(
             @CurrentUser UserPrincipal principal,
             @Valid @RequestBody CreateMatchRequest request
@@ -96,6 +99,7 @@ public class MatchController {
 
     @PostMapping("/{id}/join")
     @Operation(summary = "Rejoindre un match", description = "Rejoindre un match existant")
+    @Transactional
     public ResponseEntity<ApiResponse<MatchResponse>> joinMatch(
             @PathVariable UUID id,
             @CurrentUser UserPrincipal principal,
@@ -108,6 +112,7 @@ public class MatchController {
 
     @PostMapping("/code/{code}/join")
     @Operation(summary = "Rejoindre par code", description = "Rejoindre un match via son code")
+    @Transactional
     public ResponseEntity<ApiResponse<MatchResponse>> joinMatchByCode(
             @PathVariable String code,
             @CurrentUser UserPrincipal principal,
@@ -120,6 +125,7 @@ public class MatchController {
 
     @PostMapping("/{id}/leave")
     @Operation(summary = "Quitter un match", description = "Quitter un match en attente")
+    @Transactional
     public ResponseEntity<ApiResponse<Void>> leaveMatch(
             @PathVariable UUID id,
             @CurrentUser UserPrincipal principal
@@ -130,6 +136,7 @@ public class MatchController {
 
     @PostMapping("/{id}/start")
     @Operation(summary = "Démarrer un match", description = "Démarrer un match (arbitre)")
+    @Transactional
     public ResponseEntity<ApiResponse<MatchResponse>> startMatch(
             @PathVariable UUID id,
             @CurrentUser UserPrincipal principal

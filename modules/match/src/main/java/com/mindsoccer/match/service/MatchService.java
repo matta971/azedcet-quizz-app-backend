@@ -13,14 +13,17 @@ import com.mindsoccer.shared.exception.NotFoundException;
 import com.mindsoccer.shared.util.GameConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -37,6 +40,9 @@ public class MatchService {
     private final MatchRepository matchRepository;
     private final TeamRepository teamRepository;
     private final PlayerRepository playerRepository;
+
+    @Autowired(required = false)
+    private SimpMessagingTemplate messagingTemplate;
 
     public MatchService(MatchRepository matchRepository, TeamRepository teamRepository, PlayerRepository playerRepository) {
         this.matchRepository = matchRepository;
@@ -140,6 +146,19 @@ public class MatchService {
         playerRepository.save(player);
 
         log.info("Player {} joined match {} in team {}", userHandle, match.getCode(), targetTeam.getSide());
+
+        // Broadcast player joined event
+        broadcastPlayerJoined(match.getId(), userId, userHandle, targetTeam.getSide());
+
+        // Check if match is full and auto-start
+        boolean isFull = match.getTeamA().getPlayerCount() >= maxSize && match.getTeamB().getPlayerCount() >= maxSize;
+        if (isFull && match.isWaiting()) {
+            match.start();
+            matchRepository.save(match);
+            broadcastMatchStarted(match.getId());
+            log.info("Match {} auto-started (full)", match.getCode());
+        }
+
         return match;
     }
 
@@ -161,6 +180,7 @@ public class MatchService {
                 .orElseThrow(NotFoundException::player);
 
         TeamEntity team = player.getTeam();
+        TeamSide teamSide = team.getSide();
         team.removePlayer(player);
 
         if (team.getCaptainId() != null && team.getCaptainId().equals(userId)) {
@@ -173,6 +193,8 @@ public class MatchService {
             matchRepository.delete(match);
             log.info("Match {} deleted (empty)", match.getCode());
         } else {
+            // Broadcast player left event
+            broadcastPlayerLeft(matchId, userId, teamSide);
             log.info("Player {} left match {}", userId, match.getCode());
         }
     }
@@ -276,5 +298,61 @@ public class MatchService {
             sb.append(CODE_CHARS.charAt(random.nextInt(CODE_CHARS.length())));
         }
         return sb.toString();
+    }
+
+    // === WebSocket broadcast methods ===
+
+    private void broadcastPlayerJoined(UUID matchId, UUID playerId, String handle, TeamSide team) {
+        if (messagingTemplate == null) {
+            log.debug("WebSocket not available, skipping broadcast");
+            return;
+        }
+        String destination = "/topic/match/" + matchId;
+        Map<String, Object> payload = Map.of(
+                "type", "PLAYER_JOINED",
+                "payload", Map.of(
+                        "playerId", playerId.toString(),
+                        "handle", handle,
+                        "team", team.name()
+                ),
+                "timestamp", System.currentTimeMillis()
+        );
+        messagingTemplate.convertAndSend(destination, payload);
+        log.debug("Broadcast PLAYER_JOINED to {}", destination);
+    }
+
+    private void broadcastMatchStarted(UUID matchId) {
+        if (messagingTemplate == null) {
+            log.debug("WebSocket not available, skipping broadcast");
+            return;
+        }
+        String destination = "/topic/match/" + matchId;
+        Map<String, Object> payload = Map.of(
+                "type", "MATCH_STARTED",
+                "payload", Map.of(
+                        "matchId", matchId.toString()
+                ),
+                "timestamp", System.currentTimeMillis()
+        );
+        messagingTemplate.convertAndSend(destination, payload);
+        log.debug("Broadcast MATCH_STARTED to {}", destination);
+    }
+
+    private void broadcastPlayerLeft(UUID matchId, UUID playerId, TeamSide team) {
+        if (messagingTemplate == null) {
+            log.debug("WebSocket not available, skipping broadcast");
+            return;
+        }
+        String destination = "/topic/match/" + matchId;
+        Map<String, Object> payload = Map.of(
+                "type", "PLAYER_LEFT",
+                "payload", Map.of(
+                        "playerId", playerId.toString(),
+                        "team", team.name()
+                ),
+                "timestamp", System.currentTimeMillis()
+        );
+        messagingTemplate.convertAndSend(destination, payload);
+        log.debug("Broadcast PLAYER_LEFT to {}", destination);
     }
 }

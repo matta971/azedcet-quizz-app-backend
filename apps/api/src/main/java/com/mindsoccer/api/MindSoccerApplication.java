@@ -5,7 +5,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication(scanBasePackages = "com.mindsoccer")
+@SpringBootApplication(scanBasePackages = {
+    "com.mindsoccer.api",
+    "com.mindsoccer.match",
+    "com.mindsoccer.content",
+    "com.mindsoccer.scoring",
+    "com.mindsoccer.anticheat",
+    "com.mindsoccer.shared",
+    "com.mindsoccer.realtime"
+})
 @EntityScan(basePackages = "com.mindsoccer")
 @EnableJpaRepositories(basePackages = "com.mindsoccer")
 public class MindSoccerApplication {
