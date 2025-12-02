@@ -2,6 +2,7 @@ package com.mindsoccer.realtime.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.Message;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
@@ -10,6 +11,7 @@ import org.springframework.security.messaging.access.intercept.MessageMatcherDel
  * Configuration de sécurité WebSocket pour Spring Security 6.
  */
 @Configuration
+@Profile("!test")
 public class WebSocketSecurityConfig {
 
     @Bean

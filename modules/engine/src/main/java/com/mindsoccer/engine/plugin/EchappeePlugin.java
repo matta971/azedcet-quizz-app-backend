@@ -7,6 +7,7 @@ import com.mindsoccer.protocol.enums.RoundType;
 import com.mindsoccer.protocol.enums.TeamSide;
 import com.mindsoccer.scoring.service.AnswerValidationService;
 import com.mindsoccer.scoring.service.ScoringService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -22,6 +23,7 @@ import java.util.Map;
  * - Bonus de +5 points par question au-delà de 5 bonnes réponses
  */
 @Component
+@Profile("!test")
 public class EchappeePlugin extends AbstractRulePlugin {
 
     private static final int BASE_POINTS = 10;

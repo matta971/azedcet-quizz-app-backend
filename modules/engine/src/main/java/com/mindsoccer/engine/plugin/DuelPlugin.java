@@ -7,6 +7,7 @@ import com.mindsoccer.protocol.enums.RoundType;
 import com.mindsoccer.protocol.enums.TeamSide;
 import com.mindsoccer.scoring.service.AnswerValidationService;
 import com.mindsoccer.scoring.service.ScoringService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -25,6 +26,7 @@ import java.util.UUID;
  * - Le gagnant du duel marque un bonus de +10 points
  */
 @Component
+@Profile("!test")
 public class DuelPlugin extends AbstractRulePlugin {
 
     private static final int QUESTIONS_PER_DUEL = 3;

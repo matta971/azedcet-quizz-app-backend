@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: mindsoccer-api-test
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mindsoccer
+    username: ms_user
+    password: ms_pass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+    show-sql: false
+
+  data:
+    redis:
+      url: redis://localhost:6379
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+server:
+  port: 0
+
+mindsoccer:
+  security:
+    jwt:
+      secret: test-secret-key-for-integration-tests-only-32chars
+      expiration-ms: 3600000
+      refresh-expiration-ms: 604800000
+    cors:
+      allowed-origins: http://localhost:3000,http://localhost:19006
+
+  game:
+    tick-interval-ms: 100
+    smash-announce-timeout-ms: 3000
+    relais-bonus-timeout-ms: 40000
+    penalty-suspension-threshold: 5
+
+logging:
+  level:
+    root: WARN
+    com.mindsoccer: INFO

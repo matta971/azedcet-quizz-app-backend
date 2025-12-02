@@ -11,11 +11,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.mindsoccer.api.IntegrationTestBase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +23,10 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 @Transactional
 @DisplayName("AuthController Integration Tests")
-class AuthControllerIntegrationTest {
+class AuthControllerIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,7 +56,7 @@ class AuthControllerIntegrationTest {
                     "newuser",
                     "newuser@example.com",
                     "Password123!",
-                    "FR"
+                    "FRA"
             );
 
             mockMvc.perform(post("/api/auth/register")
@@ -84,7 +81,7 @@ class AuthControllerIntegrationTest {
                     "newuser",
                     "test@example.com",
                     "Password123!",
-                    "FR"
+                    "FRA"
             );
 
             mockMvc.perform(post("/api/auth/register")
@@ -104,7 +101,7 @@ class AuthControllerIntegrationTest {
                     "existinguser",
                     "new@example.com",
                     "Password123!",
-                    "FR"
+                    "FRA"
             );
 
             mockMvc.perform(post("/api/auth/register")
@@ -121,7 +118,7 @@ class AuthControllerIntegrationTest {
                     "testuser",
                     "invalid-email",
                     "Password123!",
-                    "FR"
+                    "FRA"
             );
 
             mockMvc.perform(post("/api/auth/register")
@@ -137,7 +134,7 @@ class AuthControllerIntegrationTest {
                     "",
                     "test@example.com",
                     "Password123!",
-                    "FR"
+                    "FRA"
             );
 
             mockMvc.perform(post("/api/auth/register")
@@ -222,7 +219,7 @@ class AuthControllerIntegrationTest {
                     "refreshtest",
                     "refresh@example.com",
                     "Password123!",
-                    "FR"
+                    "FRA"
             );
 
             MvcResult registerResult = mockMvc.perform(post("/api/auth/register")

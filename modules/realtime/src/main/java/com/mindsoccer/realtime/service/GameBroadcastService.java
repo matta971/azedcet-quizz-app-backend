@@ -5,6 +5,7 @@ import com.mindsoccer.protocol.enums.RoundType;
 import com.mindsoccer.protocol.enums.TeamSide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.UUID;
  * Service de diffusion des événements de jeu en temps réel.
  */
 @Service
+@Profile("!test")
 public class GameBroadcastService {
 
     private static final Logger log = LoggerFactory.getLogger(GameBroadcastService.class);

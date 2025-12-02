@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
         String message = i18nService.getMessage(ex.getMessageKey(), getLocale(request), ex.getArgs());
         HttpStatus status = switch (ex.getErrorCode()) {
-            case UNAUTHORIZED, AUTH_TOKEN_EXPIRED, AUTH_TOKEN_INVALID -> HttpStatus.UNAUTHORIZED;
+            case UNAUTHORIZED, AUTH_TOKEN_EXPIRED, AUTH_TOKEN_INVALID, AUTH_INVALID_CREDENTIALS -> HttpStatus.UNAUTHORIZED;
             case FORBIDDEN -> HttpStatus.FORBIDDEN;
             case AUTH_EMAIL_EXISTS, AUTH_HANDLE_EXISTS -> HttpStatus.CONFLICT;
             default -> HttpStatus.BAD_REQUEST;
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
         String message = i18nService.getMessage(ex.getMessageKey(), getLocale(request), ex.getArgs());
         HttpStatus status = switch (ex.getErrorCode()) {
             case MATCH_NOT_FOUND -> HttpStatus.NOT_FOUND;
-            case MATCH_FULL, MATCH_ALREADY_STARTED, MATCH_ALREADY_FINISHED -> HttpStatus.CONFLICT;
+            case MATCH_FULL, MATCH_ALREADY_STARTED, MATCH_ALREADY_FINISHED, MATCH_ALREADY_PARTICIPANT -> HttpStatus.CONFLICT;
             default -> HttpStatus.BAD_REQUEST;
         };
         return ResponseEntity.status(status).body(ApiResponse.error(ex.getCode(), message));

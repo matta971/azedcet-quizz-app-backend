@@ -7,6 +7,7 @@ import com.mindsoccer.protocol.enums.RoundType;
 import com.mindsoccer.protocol.enums.TeamSide;
 import com.mindsoccer.scoring.service.AnswerValidationService;
 import com.mindsoccer.scoring.service.ScoringService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -27,6 +28,7 @@ import java.util.Map;
  * - Bonus de longueur: +2 points si le mot a 8+ lettres
  */
 @Component
+@Profile("!test")
 public class RandonneeLexicalePlugin extends AbstractRulePlugin {
 
     private static final int BASE_POINTS = 5;

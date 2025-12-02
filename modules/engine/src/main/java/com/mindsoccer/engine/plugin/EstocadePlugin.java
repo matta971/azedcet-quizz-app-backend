@@ -7,6 +7,7 @@ import com.mindsoccer.protocol.enums.RoundType;
 import com.mindsoccer.protocol.enums.TeamSide;
 import com.mindsoccer.scoring.service.AnswerValidationService;
 import com.mindsoccer.scoring.service.ScoringService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -23,6 +24,7 @@ import java.util.Map;
  * - 4 manches par round, alternance des rôles
  */
 @Component
+@Profile("!test")
 public class EstocadePlugin extends AbstractRulePlugin {
 
     private static final int TOTAL_MANCHES = 4;

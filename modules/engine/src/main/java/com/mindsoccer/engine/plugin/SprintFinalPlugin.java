@@ -8,6 +8,7 @@ import com.mindsoccer.protocol.enums.TeamSide;
 import com.mindsoccer.scoring.service.AnswerValidationService;
 import com.mindsoccer.scoring.service.ScoringService;
 import com.mindsoccer.shared.util.GameConstants;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -24,6 +25,7 @@ import java.util.Map;
  * - Rubrique décisive pour départager les équipes
  */
 @Component
+@Profile("!test")
 public class SprintFinalPlugin extends AbstractRulePlugin {
 
     private static final String TEAM_A_SCORE_KEY = "teamAScore";

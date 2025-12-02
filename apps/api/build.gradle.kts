@@ -42,6 +42,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("com.redis:testcontainers-redis:2.2.2")
 }
 
 springBoot {

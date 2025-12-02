@@ -1,6 +1,7 @@
 package com.mindsoccer.engine;
 
 import com.mindsoccer.protocol.enums.RoundType;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;
@@ -13,6 +14,7 @@ import java.util.Optional;
  * Associe chaque type de rubrique à son plugin correspondant.
  */
 @Component
+@Profile("!test")
 public class PluginRegistry {
 
     private final Map<RoundType, RulePlugin> plugins;

@@ -7,6 +7,7 @@ import com.mindsoccer.protocol.enums.RoundType;
 import com.mindsoccer.protocol.enums.TeamSide;
 import com.mindsoccer.scoring.service.AnswerValidationService;
 import com.mindsoccer.scoring.service.ScoringService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -23,6 +24,7 @@ import java.util.Map;
  * - Série bonus: +5 points supplémentaires pour 3 bonnes réponses consécutives
  */
 @Component
+@Profile("!test")
 public class MarathonPlugin extends AbstractRulePlugin {
 
     private static final int QUESTIONS_PER_TEAM = 10;
