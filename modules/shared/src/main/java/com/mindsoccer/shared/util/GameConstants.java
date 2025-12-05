@@ -159,8 +159,8 @@ public final class GameConstants {
     /** Taille maximale d'une équipe */
     public static final int TEAM_MAX_SIZE = 5;
 
-    /** Taille équipe en mode duo */
-    public static final int TEAM_DUO_SIZE = 2;
+    /** Taille équipe en mode duo (1v1) */
+    public static final int TEAM_DUO_SIZE = 1;
 
     /** Taille équipe en mode solo */
     public static final int TEAM_SIZE_SOLO = 1;
@@ -175,14 +175,32 @@ public final class GameConstants {
 
     // ==================== SMASH ====================
 
-    /** Nombre de questions SMASH */
-    public static final int SMASH_QUESTION_COUNT = 6;
+    /** Nombre de questions SMASH (2 questions: 1 par équipe) */
+    public static final int SMASH_QUESTION_COUNT = 2;
 
     /** Points pour bonne réponse SMASH */
     public static final int SMASH_CORRECT_POINTS = 10;
 
     /** Points pour vol SMASH (steal) */
     public static final int SMASH_STEAL_POINTS = 10;
+
+    /** Timeout pour poser la question après TOP (3 secondes) */
+    public static final long SMASH_QUESTION_TIMEOUT_MS = 3000;
+    public static final Duration SMASH_QUESTION_TIMEOUT = Duration.ofSeconds(3);
+
+    /** Timeout pour valider la question (3 secondes) */
+    public static final long SMASH_VALIDATE_TIMEOUT_MS = 3000;
+    public static final Duration SMASH_VALIDATE_TIMEOUT = Duration.ofSeconds(3);
+
+    /** Timeout pour répondre à la question (10 secondes) */
+    public static final long SMASH_ANSWER_TIMEOUT_MS = 10000;
+    public static final Duration SMASH_ANSWER_TIMEOUT = Duration.ofSeconds(10);
+
+    /** Points pour timeout de l'attaquant (3s dépassé) */
+    public static final int SMASH_ATTACKER_TIMEOUT_POINTS = 10;
+
+    /** Points pour question invalide */
+    public static final int SMASH_INVALID_QUESTION_POINTS = 10;
 
     // ==================== CASCADE ====================
 

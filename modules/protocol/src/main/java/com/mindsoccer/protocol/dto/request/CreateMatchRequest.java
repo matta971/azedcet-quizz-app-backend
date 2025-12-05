@@ -14,23 +14,24 @@ public record CreateMatchRequest(
         @Schema(description = "Mode de jeu", example = "CLASSIC", allowableValues = {"CLASSIC", "QUICK", "CUSTOM"})
         String mode,
 
-        @Schema(description = "Taille des équipes", example = "4", minimum = "2", maximum = "5")
-        @Min(2) @Max(5)
-        int teamSize,
+        @Schema(description = "Nombre maximum de joueurs par équipe. Les deux équipes doivent atteindre ce nombre pour démarrer le match.",
+                example = "3", minimum = "1", maximum = "5")
+        @Min(1) @Max(5)
+        int maxPlayersPerTeam,
 
         @Schema(description = "Région du match", example = "EU")
         @Size(max = 50)
         String region,
 
-        @Schema(description = "Match privé", example = "true")
-        boolean isPrivate,
+        @Schema(description = "Match classé (ranked)", example = "true")
+        boolean ranked,
 
         @Schema(description = "Rubriques personnalisées (null = toutes)")
         String[] customRounds
 ) {
     public CreateMatchRequest {
         if (mode == null || mode.isBlank()) mode = "CLASSIC";
-        if (teamSize < 2) teamSize = 2;
-        if (teamSize > 5) teamSize = 5;
+        if (maxPlayersPerTeam < 1) maxPlayersPerTeam = 1;
+        if (maxPlayersPerTeam > 5) maxPlayersPerTeam = 5;
     }
 }

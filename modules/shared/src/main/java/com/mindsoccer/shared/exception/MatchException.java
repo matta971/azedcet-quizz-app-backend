@@ -44,4 +44,8 @@ public class MatchException extends GameException {
     public static MatchException teamsIncomplete() {
         return new MatchException(ErrorCode.MATCH_TEAMS_INCOMPLETE);
     }
+
+    public static MatchException notAuthorized(String message) {
+        return new MatchException(ErrorCode.MATCH_NOT_AUTHORIZED, message);
+    }
 }

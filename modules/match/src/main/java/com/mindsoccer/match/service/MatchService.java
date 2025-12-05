@@ -78,12 +78,17 @@ public class MatchService {
     }
 
     @Transactional
-    public MatchEntity createMatch(UUID creatorId, String creatorHandle, boolean ranked, boolean duo, TeamSide preferredSide) {
+    public MatchEntity createMatch(UUID creatorId, String creatorHandle, boolean ranked, int maxPlayersPerTeam, TeamSide preferredSide) {
+        // Valider maxPlayersPerTeam
+        if (maxPlayersPerTeam < 1) maxPlayersPerTeam = 1;
+        if (maxPlayersPerTeam > GameConstants.TEAM_MAX_SIZE) maxPlayersPerTeam = GameConstants.TEAM_MAX_SIZE;
+
         String code = generateUniqueCode();
 
         MatchEntity match = new MatchEntity(code);
         match.setRanked(ranked);
-        match.setDuo(duo);
+        match.setMaxPlayersPerTeam(maxPlayersPerTeam);
+        match.setDuo(maxPlayersPerTeam == 1); // duo si 1v1
 
         TeamEntity teamA = new TeamEntity(TeamSide.A);
         TeamEntity teamB = new TeamEntity(TeamSide.B);
@@ -100,7 +105,7 @@ public class MatchService {
 
         matchRepository.save(match);
 
-        log.info("Match created: {} by {} ({})", code, creatorHandle, creatorId);
+        log.info("Match created: {} by {} ({}) - maxPlayersPerTeam: {}", code, creatorHandle, creatorId, maxPlayersPerTeam);
         return match;
     }
 
@@ -116,7 +121,7 @@ public class MatchService {
             throw MatchException.alreadyParticipant();
         }
 
-        int maxSize = match.isDuo() ? GameConstants.TEAM_DUO_SIZE : GameConstants.TEAM_MAX_SIZE;
+        int maxSize = match.getMaxPlayersPerTeam();
         TeamEntity targetTeam = null;
 
         if (preferredSide != null) {
@@ -150,14 +155,8 @@ public class MatchService {
         // Broadcast player joined event
         broadcastPlayerJoined(match.getId(), userId, userHandle, targetTeam.getSide());
 
-        // Check if match is full and auto-start
-        boolean isFull = match.getTeamA().getPlayerCount() >= maxSize && match.getTeamB().getPlayerCount() >= maxSize;
-        if (isFull && match.isWaiting()) {
-            match.start();
-            matchRepository.save(match);
-            broadcastMatchStarted(match.getId());
-            log.info("Match {} auto-started (full)", match.getCode());
-        }
+        // Broadcast lobby updated with team status
+        broadcastLobbyUpdated(match);
 
         return match;
     }
@@ -195,27 +194,37 @@ public class MatchService {
         } else {
             // Broadcast player left event
             broadcastPlayerLeft(matchId, userId, teamSide);
+            // Broadcast lobby updated with new team status
+            broadcastLobbyUpdated(match);
             log.info("Player {} left match {}", userId, match.getCode());
         }
     }
 
     @Transactional
-    public MatchEntity startMatch(UUID matchId, UUID refereeId) {
+    public MatchEntity startMatch(UUID matchId, UUID userId) {
         MatchEntity match = getById(matchId);
 
         if (!match.isWaiting()) {
             throw MatchException.alreadyStarted();
         }
 
-        int minPlayers = match.isDuo() ? 2 : GameConstants.TEAM_MIN_SIZE;
-        if (match.getTeamA().getPlayerCount() < minPlayers || match.getTeamB().getPlayerCount() < minPlayers) {
+        // Les deux équipes doivent être complètes (atteindre maxPlayersPerTeam)
+        if (!match.areBothTeamsFull()) {
             throw MatchException.teamsIncomplete();
         }
 
-        match.setRefereeId(refereeId);
+        // Vérifier que l'utilisateur est un capitaine (équipe A ou B)
+        boolean isCaptainA = match.getTeamA() != null && userId.equals(match.getTeamA().getCaptainId());
+        boolean isCaptainB = match.getTeamB() != null && userId.equals(match.getTeamB().getCaptainId());
+        if (!isCaptainA && !isCaptainB) {
+            throw MatchException.notAuthorized("Seul un capitaine peut lancer le match");
+        }
+
         match.start();
 
-        log.info("Match {} started by referee {}", match.getCode(), refereeId);
+        broadcastMatchStarted(match.getId());
+        log.info("Match {} started by captain {} - Teams full ({} players each)",
+                match.getCode(), userId, match.getMaxPlayersPerTeam());
         return matchRepository.save(match);
     }
 
@@ -354,5 +363,43 @@ public class MatchService {
         );
         messagingTemplate.convertAndSend(destination, payload);
         log.debug("Broadcast PLAYER_LEFT to {}", destination);
+    }
+
+    private void broadcastLobbyUpdated(MatchEntity match) {
+        if (messagingTemplate == null) {
+            log.debug("WebSocket not available, skipping broadcast");
+            return;
+        }
+        String destination = "/topic/match/" + match.getId();
+
+        TeamEntity teamA = match.getTeamA();
+        TeamEntity teamB = match.getTeamB();
+        int maxPlayers = match.getMaxPlayersPerTeam();
+
+        // Build team info maps with null-safe handling
+        Map<String, Object> teamAInfo = new java.util.HashMap<>();
+        teamAInfo.put("playerCount", teamA.getPlayerCount());
+        teamAInfo.put("isFull", teamA.getPlayerCount() >= maxPlayers);
+        teamAInfo.put("captainId", teamA.getCaptainId() != null ? teamA.getCaptainId().toString() : null);
+
+        Map<String, Object> teamBInfo = new java.util.HashMap<>();
+        teamBInfo.put("playerCount", teamB.getPlayerCount());
+        teamBInfo.put("isFull", teamB.getPlayerCount() >= maxPlayers);
+        teamBInfo.put("captainId", teamB.getCaptainId() != null ? teamB.getCaptainId().toString() : null);
+
+        Map<String, Object> payloadContent = new java.util.HashMap<>();
+        payloadContent.put("matchId", match.getId().toString());
+        payloadContent.put("maxPlayersPerTeam", maxPlayers);
+        payloadContent.put("teamA", teamAInfo);
+        payloadContent.put("teamB", teamBInfo);
+        payloadContent.put("canStart", match.canStart());
+
+        Map<String, Object> payload = Map.of(
+                "type", "LOBBY_UPDATED",
+                "payload", payloadContent,
+                "timestamp", System.currentTimeMillis()
+        );
+        messagingTemplate.convertAndSend(destination, payload);
+        log.debug("Broadcast LOBBY_UPDATED to {} - canStart: {}", destination, match.canStart());
     }
 }

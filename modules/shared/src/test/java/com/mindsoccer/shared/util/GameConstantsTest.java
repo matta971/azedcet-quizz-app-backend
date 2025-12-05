@@ -13,7 +13,8 @@ class GameConstantsTest {
     void teamSizeShouldBePositive() {
         assertThat(GameConstants.TEAM_SIZE_SOLO).isPositive();
         assertThat(GameConstants.TEAM_DUO_SIZE).isPositive();
-        assertThat(GameConstants.TEAM_DUO_SIZE).isGreaterThan(GameConstants.TEAM_SIZE_SOLO);
+        // Duo is now 1v1, same as solo team size
+        assertThat(GameConstants.TEAM_DUO_SIZE).isGreaterThanOrEqualTo(GameConstants.TEAM_SIZE_SOLO);
     }
 
     @Test

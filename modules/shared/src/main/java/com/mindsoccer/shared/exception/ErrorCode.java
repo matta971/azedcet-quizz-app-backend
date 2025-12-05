@@ -36,6 +36,7 @@ public enum ErrorCode {
     MATCH_REFEREE_REQUIRED("error.match.referee_required", 3006, HttpStatus.BAD_REQUEST),
     MATCH_ALREADY_PARTICIPANT("error.match.already_participant", 3007, HttpStatus.CONFLICT),
     MATCH_TEAMS_INCOMPLETE("error.match.teams_incomplete", 3008, HttpStatus.BAD_REQUEST),
+    MATCH_NOT_AUTHORIZED("error.match.not_authorized", 3009, HttpStatus.FORBIDDEN),
 
     // Erreurs de round (4xxx)
     ROUND_NOT_FOUND("error.round.not_found", 4000, HttpStatus.NOT_FOUND),

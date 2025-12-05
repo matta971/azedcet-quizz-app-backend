@@ -1,6 +1,7 @@
 package com.mindsoccer.match.entity;
 
 import com.mindsoccer.protocol.enums.MatchStatus;
+import com.mindsoccer.protocol.enums.TeamSide;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -34,6 +35,9 @@ public class MatchEntity {
 
     @Column(name = "is_duo", nullable = false)
     private boolean duo = false;
+
+    @Column(name = "max_players_per_team", nullable = false)
+    private int maxPlayersPerTeam = 5;
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("side ASC")
@@ -133,6 +137,14 @@ public class MatchEntity {
 
     public void setDuo(boolean duo) {
         this.duo = duo;
+    }
+
+    public int getMaxPlayersPerTeam() {
+        return maxPlayersPerTeam;
+    }
+
+    public void setMaxPlayersPerTeam(int maxPlayersPerTeam) {
+        this.maxPlayersPerTeam = maxPlayersPerTeam;
     }
 
     public List<TeamEntity> getTeams() {
@@ -256,14 +268,14 @@ public class MatchEntity {
 
     public TeamEntity getTeamA() {
         return teams.stream()
-                .filter(t -> t.getSide() == com.mindsoccer.protocol.enums.TeamSide.A)
+                .filter(t -> t.getSide() == TeamSide.A)
                 .findFirst()
                 .orElse(null);
     }
 
     public TeamEntity getTeamB() {
         return teams.stream()
-                .filter(t -> t.getSide() == com.mindsoccer.protocol.enums.TeamSide.B)
+                .filter(t -> t.getSide() == TeamSide.B)
                 .findFirst()
                 .orElse(null);
     }
@@ -289,5 +301,27 @@ public class MatchEntity {
     public void finish() {
         this.status = MatchStatus.FINISHED;
         this.finishedAt = Instant.now();
+    }
+
+    /**
+     * Vérifie si une équipe est complète (a atteint maxPlayersPerTeam).
+     */
+    public boolean isTeamFull(TeamSide side) {
+        TeamEntity team = side == TeamSide.A ? getTeamA() : getTeamB();
+        return team != null && team.getPlayerCount() >= maxPlayersPerTeam;
+    }
+
+    /**
+     * Vérifie si les deux équipes sont complètes et prêtes à démarrer.
+     */
+    public boolean areBothTeamsFull() {
+        return isTeamFull(TeamSide.A) && isTeamFull(TeamSide.B);
+    }
+
+    /**
+     * Vérifie si le match peut être démarré (les deux équipes sont complètes).
+     */
+    public boolean canStart() {
+        return isWaiting() && areBothTeamsFull();
     }
 }

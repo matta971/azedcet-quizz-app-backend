@@ -2,6 +2,7 @@ package com.mindsoccer.api.controller;
 
 import com.mindsoccer.api.security.CurrentUser;
 import com.mindsoccer.api.security.UserPrincipal;
+import com.mindsoccer.api.service.GameOrchestratorService;
 import com.mindsoccer.match.entity.MatchEntity;
 import com.mindsoccer.match.entity.PlayerEntity;
 import com.mindsoccer.match.entity.TeamEntity;
@@ -11,6 +12,7 @@ import com.mindsoccer.protocol.dto.common.PageResponse;
 import com.mindsoccer.protocol.dto.request.CreateMatchRequest;
 import com.mindsoccer.protocol.dto.request.JoinMatchRequest;
 import com.mindsoccer.protocol.dto.response.MatchResponse;
+import com.mindsoccer.protocol.enums.MatchStatus;
 import com.mindsoccer.protocol.enums.TeamSide;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -35,9 +37,11 @@ import java.util.UUID;
 public class MatchController {
 
     private final MatchService matchService;
+    private final GameOrchestratorService gameOrchestratorService;
 
-    public MatchController(MatchService matchService) {
+    public MatchController(MatchService matchService, GameOrchestratorService gameOrchestratorService) {
         this.matchService = matchService;
+        this.gameOrchestratorService = gameOrchestratorService;
     }
 
     @GetMapping
@@ -80,7 +84,7 @@ public class MatchController {
     }
 
     @PostMapping
-    @Operation(summary = "Créer un match", description = "Créer un nouveau match")
+    @Operation(summary = "Créer un match", description = "Créer un nouveau match avec le nombre de joueurs par équipe spécifié")
     @Transactional
     public ResponseEntity<ApiResponse<MatchResponse>> createMatch(
             @CurrentUser UserPrincipal principal,
@@ -89,8 +93,8 @@ public class MatchController {
         MatchEntity match = matchService.createMatch(
                 principal.getId(),
                 principal.getHandle(),
-                !request.isPrivate(),  // ranked = not private
-                request.teamSize() == 2,  // duo = teamSize 2
+                request.ranked(),
+                request.maxPlayersPerTeam(),
                 null  // preferredSide not in request
         );
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -107,6 +111,12 @@ public class MatchController {
     ) {
         TeamSide preferredSide = request != null ? request.team() : null;
         MatchEntity match = matchService.joinMatch(id, principal.getId(), principal.getHandle(), preferredSide);
+
+        // If match auto-started (became PLAYING), initialize the game engine
+        if (match.getStatus() == MatchStatus.PLAYING) {
+            gameOrchestratorService.initializeAndStartGame(match);
+        }
+
         return ResponseEntity.ok(ApiResponse.success(toResponse(match)));
     }
 
@@ -120,6 +130,12 @@ public class MatchController {
     ) {
         TeamSide preferredSide = request != null ? request.team() : null;
         MatchEntity match = matchService.joinByCode(code, principal.getId(), principal.getHandle(), preferredSide);
+
+        // If match auto-started (became PLAYING), initialize the game engine
+        if (match.getStatus() == MatchStatus.PLAYING) {
+            gameOrchestratorService.initializeAndStartGame(match);
+        }
+
         return ResponseEntity.ok(ApiResponse.success(toResponse(match)));
     }
 
@@ -135,19 +151,24 @@ public class MatchController {
     }
 
     @PostMapping("/{id}/start")
-    @Operation(summary = "Démarrer un match", description = "Démarrer un match (arbitre)")
+    @Operation(summary = "Démarrer un match", description = "Démarrer un match (capitaine)")
     @Transactional
     public ResponseEntity<ApiResponse<MatchResponse>> startMatch(
             @PathVariable UUID id,
             @CurrentUser UserPrincipal principal
     ) {
         MatchEntity match = matchService.startMatch(id, principal.getId());
+
+        // Initialize the game engine after match starts
+        gameOrchestratorService.initializeAndStartGame(match);
+
         return ResponseEntity.ok(ApiResponse.success(toResponse(match)));
     }
 
     private MatchResponse toResponse(MatchEntity match) {
         TeamEntity teamA = match.getTeamA();
         TeamEntity teamB = match.getTeamB();
+        int maxPlayers = match.getMaxPlayersPerTeam();
 
         return new MatchResponse(
                 match.getId(),
@@ -155,19 +176,21 @@ public class MatchController {
                 match.getStatus(),
                 match.isRanked(),
                 match.isDuo(),
-                toTeamResponse(teamA),
-                toTeamResponse(teamB),
+                maxPlayers,
+                toTeamResponse(teamA, maxPlayers),
+                toTeamResponse(teamB, maxPlayers),
                 match.getScoreTeamA(),
                 match.getScoreTeamB(),
                 match.getCurrentRound(),
                 match.getCurrentRoundType(),
+                match.canStart(),
                 match.getStartedAt(),
                 match.getFinishedAt(),
                 match.getCreatedAt()
         );
     }
 
-    private MatchResponse.TeamResponse toTeamResponse(TeamEntity team) {
+    private MatchResponse.TeamResponse toTeamResponse(TeamEntity team, int maxPlayersPerTeam) {
         if (team == null) return null;
 
         List<MatchResponse.PlayerResponse> players = team.getPlayers().stream()
@@ -179,7 +202,9 @@ public class MatchController {
                 team.getSide(),
                 team.getName(),
                 team.getCaptainId(),
-                players
+                players,
+                team.getPlayerCount(),
+                team.getPlayerCount() >= maxPlayersPerTeam
         );
     }
 

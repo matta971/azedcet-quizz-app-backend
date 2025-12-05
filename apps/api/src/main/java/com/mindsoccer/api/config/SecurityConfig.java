@@ -66,8 +66,8 @@ public class SecurityConfig {
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/questions/**", "/api/themes/**").permitAll()
 
-                // Referee endpoints
-                .requestMatchers("/api/matches/*/start", "/api/matches/*/pause", "/api/rounds/*/penalty")
+                // Referee endpoints (pause and penalty only - start is allowed for captains)
+                .requestMatchers("/api/matches/*/pause", "/api/rounds/*/penalty")
                     .hasAnyRole("REFEREE", "ADMIN")
 
                 // Author endpoints

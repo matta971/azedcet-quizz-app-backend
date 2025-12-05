@@ -101,7 +101,7 @@ class MatchControllerIntegrationTest extends IntegrationTestBase {
         @Test
         @DisplayName("Should create match successfully")
         void shouldCreateMatchSuccessfully() throws Exception {
-            CreateMatchRequest request = new CreateMatchRequest("CLASSIC", 4, "EU", false, null);
+            CreateMatchRequest request = new CreateMatchRequest("CLASSIC", 4, "EU", true, null);
 
             mockMvc.perform(post("/api/matches")
                             .header("Authorization", "Bearer " + accessToken)
@@ -112,26 +112,29 @@ class MatchControllerIntegrationTest extends IntegrationTestBase {
                     .andExpect(jsonPath("$.data.id").isNotEmpty())
                     .andExpect(jsonPath("$.data.code").isNotEmpty())
                     .andExpect(jsonPath("$.data.code", hasLength(6)))
-                    .andExpect(jsonPath("$.data.status").value("WAITING"));
+                    .andExpect(jsonPath("$.data.status").value("WAITING"))
+                    .andExpect(jsonPath("$.data.maxPlayersPerTeam").value(4));
         }
 
         @Test
-        @DisplayName("Should create duo match")
+        @DisplayName("Should create duo match (1v1)")
         void shouldCreateDuoMatch() throws Exception {
-            CreateMatchRequest request = new CreateMatchRequest("CLASSIC", 2, "EU", false, null);
+            // duo = true when maxPlayersPerTeam = 1
+            CreateMatchRequest request = new CreateMatchRequest("CLASSIC", 1, "EU", true, null);
 
             mockMvc.perform(post("/api/matches")
                             .header("Authorization", "Bearer " + accessToken)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.data.duo").value(true));
+                    .andExpect(jsonPath("$.data.duo").value(true))
+                    .andExpect(jsonPath("$.data.maxPlayersPerTeam").value(1));
         }
 
         @Test
         @DisplayName("Should add creator to preferred team")
         void shouldAddCreatorToPreferredTeam() throws Exception {
-            CreateMatchRequest request = new CreateMatchRequest("CLASSIC", 4, "EU", false, null);
+            CreateMatchRequest request = new CreateMatchRequest("CLASSIC", 4, "EU", true, null);
 
             mockMvc.perform(post("/api/matches")
                             .header("Authorization", "Bearer " + accessToken)
@@ -139,7 +142,9 @@ class MatchControllerIntegrationTest extends IntegrationTestBase {
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.data.teamA.players", hasSize(1)))
-                    .andExpect(jsonPath("$.data.teamA.players[0].handle").value("player1"));
+                    .andExpect(jsonPath("$.data.teamA.players[0].handle").value("player1"))
+                    .andExpect(jsonPath("$.data.teamA.playerCount").value(1))
+                    .andExpect(jsonPath("$.data.teamA.isFull").value(false));
         }
     }
 
@@ -257,6 +262,7 @@ class MatchControllerIntegrationTest extends IntegrationTestBase {
 
     private MatchEntity createTestMatch() {
         MatchEntity match = new MatchEntity("TEST01");
+        match.setMaxPlayersPerTeam(3); // 3v3 match
         TeamEntity teamA = new TeamEntity(TeamSide.A);
         TeamEntity teamB = new TeamEntity(TeamSide.B);
         match.addTeam(teamA);
@@ -266,6 +272,7 @@ class MatchControllerIntegrationTest extends IntegrationTestBase {
 
     private MatchEntity createTestMatchWithPlayer(UUID userId, String handle) {
         MatchEntity match = new MatchEntity("TEST02");
+        match.setMaxPlayersPerTeam(3); // 3v3 match
         TeamEntity teamA = new TeamEntity(TeamSide.A);
         TeamEntity teamB = new TeamEntity(TeamSide.B);
 

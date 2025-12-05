@@ -26,8 +26,11 @@ public record MatchResponse(
         @Schema(description = "Match classé")
         boolean ranked,
 
-        @Schema(description = "Mode duo (2v2)")
+        @Schema(description = "Mode duo (1v1)")
         boolean duo,
+
+        @Schema(description = "Nombre maximum de joueurs par équipe")
+        int maxPlayersPerTeam,
 
         @Schema(description = "Équipe A")
         TeamResponse teamA,
@@ -47,6 +50,9 @@ public record MatchResponse(
         @Schema(description = "Type de rubrique en cours")
         String currentRoundType,
 
+        @Schema(description = "Le match peut être démarré (les deux équipes sont complètes)")
+        boolean canStart,
+
         @Schema(description = "Date de début")
         Instant startedAt,
 
@@ -59,11 +65,26 @@ public record MatchResponse(
 
     @Schema(description = "Informations équipe")
     public record TeamResponse(
+            @Schema(description = "ID de l'équipe")
             UUID id,
+
+            @Schema(description = "Côté de l'équipe (A ou B)")
             TeamSide side,
+
+            @Schema(description = "Nom de l'équipe")
             String name,
+
+            @Schema(description = "ID du capitaine")
             UUID captainId,
-            List<PlayerResponse> players
+
+            @Schema(description = "Liste des joueurs")
+            List<PlayerResponse> players,
+
+            @Schema(description = "Nombre de joueurs actuels")
+            int playerCount,
+
+            @Schema(description = "L'équipe est complète")
+            boolean isFull
     ) {}
 
     @Schema(description = "Informations joueur")
