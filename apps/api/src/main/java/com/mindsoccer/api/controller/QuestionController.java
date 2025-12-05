@@ -27,6 +27,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.hibernate.Hibernate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,6 +55,7 @@ public class QuestionController {
     }
 
     @GetMapping
+    @Transactional(readOnly = true)
     @Operation(summary = "Liste des questions", description = "Récupérer la liste paginée des questions")
     public ResponseEntity<ApiResponse<PageResponse<QuestionDetailResponse>>> getQuestions(
             @RequestParam(defaultValue = "0") int page,
@@ -77,6 +80,7 @@ public class QuestionController {
     }
 
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     @Operation(summary = "Question par ID", description = "Récupérer une question par son identifiant")
     public ResponseEntity<ApiResponse<QuestionDetailResponse>> getQuestionById(@PathVariable UUID id) {
         QuestionEntity question = questionService.getById(id);
@@ -84,6 +88,7 @@ public class QuestionController {
     }
 
     @GetMapping("/theme/{themeId}")
+    @Transactional(readOnly = true)
     @Operation(summary = "Questions par thème", description = "Récupérer les questions d'un thème")
     public ResponseEntity<ApiResponse<PageResponse<QuestionDetailResponse>>> getByTheme(
             @PathVariable UUID themeId,
@@ -96,6 +101,7 @@ public class QuestionController {
     }
 
     @GetMapping("/round-type/{roundType}")
+    @Transactional(readOnly = true)
     @Operation(summary = "Questions par rubrique", description = "Récupérer les questions d'une rubrique")
     public ResponseEntity<ApiResponse<PageResponse<QuestionDetailResponse>>> getByRoundType(
             @PathVariable RoundType roundType,
@@ -108,6 +114,7 @@ public class QuestionController {
     }
 
     @GetMapping("/smash/random")
+    @Transactional(readOnly = true)
     @Operation(summary = "Questions aléatoires SMASH", description = "Récupérer des questions aléatoires pour le mode SMASH")
     public ResponseEntity<ApiResponse<List<SmashQuestionOptionResponse>>> getRandomSmashQuestions(
             @RequestParam(defaultValue = "10") int count,
@@ -173,7 +180,9 @@ public class QuestionController {
         question.setAlternativeAnswers(request.alternativeAnswers() != null ? request.alternativeAnswers() : new java.util.HashSet<>());
         question.setQuestionFormat(request.format() != null ? request.format() : com.mindsoccer.protocol.enums.QuestionFormat.TEXT);
         question.setDifficulty(request.difficulty() != null ? request.difficulty() : Difficulty.MEDIUM);
-        question.setRoundType(request.roundType());
+        if (request.roundType() != null) {
+            question.setRoundTypes(Set.of(request.roundType()));
+        }
         question.setChoices(request.choices() != null ? request.choices() : new java.util.ArrayList<>());
         question.setCorrectChoiceIndex(request.correctChoiceIndex());
         question.setHintFr(request.hintFr());
@@ -205,7 +214,9 @@ public class QuestionController {
         updates.setAlternativeAnswers(request.alternativeAnswers() != null ? request.alternativeAnswers() : new java.util.HashSet<>());
         updates.setQuestionFormat(request.format() != null ? request.format() : com.mindsoccer.protocol.enums.QuestionFormat.TEXT);
         updates.setDifficulty(request.difficulty() != null ? request.difficulty() : Difficulty.MEDIUM);
-        updates.setRoundType(request.roundType());
+        if (request.roundType() != null) {
+            updates.setRoundTypes(Set.of(request.roundType()));
+        }
         updates.setChoices(request.choices() != null ? request.choices() : new java.util.ArrayList<>());
         updates.setCorrectChoiceIndex(request.correctChoiceIndex());
         updates.setHintFr(request.hintFr());
@@ -271,9 +282,53 @@ public class QuestionController {
         return ResponseEntity.ok(ApiResponse.success(toImportResponse(result)));
     }
 
+    @PostMapping("/import/json")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Importer JSON", description = "Importer les questions générales depuis le fichier JSON intégré (admin)")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> importJson() {
+        QuestionImportService.JsonImportReport report = importService.importGeneralQuestions();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("source", report.source());
+        result.put("totalQuestions", report.totalQuestions());
+        result.put("importedQuestions", report.importedQuestions());
+        result.put("failedCount", report.getFailedCount());
+        result.put("errors", report.errors());
+        result.put("success", !report.hasErrors() || report.importedQuestions() > 0);
+
+        return ResponseEntity.ok(ApiResponse.success(result));
+    }
+
     private QuestionDetailResponse toDetailResponse(QuestionEntity question) {
         ThemeEntity theme = question.getTheme();
         MediaEntity media = question.getMedia();
+
+        // Check if lazy associations are initialized before accessing them
+        ThemeResponse themeResponse = null;
+        if (theme != null && Hibernate.isInitialized(theme)) {
+            themeResponse = new ThemeResponse(theme.getId(), theme.getNameFr(), theme.getDescription(), 0, theme.getIconUrl());
+        }
+
+        QuestionDetailResponse.MediaResponse mediaResponse = null;
+        if (media != null && Hibernate.isInitialized(media)) {
+            mediaResponse = new QuestionDetailResponse.MediaResponse(media.getId(), media.getMediaType().name(), media.getUrl(), media.getThumbnailUrl());
+        }
+
+        // Handle lazy collections - return empty sets/lists if not initialized
+        Set<String> alternativeAnswers = new HashSet<>();
+        if (Hibernate.isInitialized(question.getAlternativeAnswers())) {
+            alternativeAnswers = question.getAlternativeAnswers();
+        }
+
+        RoundType roundType = null;
+        if (Hibernate.isInitialized(question.getRoundTypes()) && question.getRoundTypes() != null && !question.getRoundTypes().isEmpty()) {
+            roundType = question.getRoundTypes().iterator().next();
+        }
+
+        List<String> choices = new java.util.ArrayList<>();
+        if (Hibernate.isInitialized(question.getChoices())) {
+            choices = question.getChoices();
+        }
 
         return new QuestionDetailResponse(
                 question.getId(),
@@ -282,13 +337,13 @@ public class QuestionController {
                 question.getTextHt(),
                 question.getTextFon(),
                 question.getAnswer(),
-                question.getAlternativeAnswers(),
+                alternativeAnswers,
                 question.getQuestionFormat(),
                 question.getDifficulty(),
-                theme != null ? new ThemeResponse(theme.getId(), theme.getNameFr(), theme.getDescription(), 0, theme.getIconUrl()) : null,
-                question.getRoundType(),
-                media != null ? new QuestionDetailResponse.MediaResponse(media.getId(), media.getMediaType().name(), media.getUrl(), media.getThumbnailUrl()) : null,
-                question.getChoices(),
+                themeResponse,
+                roundType,
+                mediaResponse,
+                choices,
                 question.getCorrectChoiceIndex(),
                 question.getHintFr(),
                 question.getHintEn(),

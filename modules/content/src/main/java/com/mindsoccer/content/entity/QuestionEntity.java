@@ -1,7 +1,9 @@
 package com.mindsoccer.content.entity;
 
+import com.mindsoccer.protocol.enums.Country;
 import com.mindsoccer.protocol.enums.Difficulty;
 import com.mindsoccer.protocol.enums.QuestionFormat;
+import com.mindsoccer.protocol.enums.QuestionType;
 import com.mindsoccer.protocol.enums.RoundType;
 import jakarta.persistence.*;
 
@@ -19,9 +21,11 @@ import java.util.UUID;
 @Entity
 @Table(name = "ms_question", indexes = {
         @Index(name = "idx_question_theme", columnList = "theme_id"),
-        @Index(name = "idx_question_round_type", columnList = "round_type"),
         @Index(name = "idx_question_difficulty", columnList = "difficulty"),
-        @Index(name = "idx_question_active", columnList = "active")
+        @Index(name = "idx_question_active", columnList = "active"),
+        @Index(name = "idx_question_country", columnList = "country"),
+        @Index(name = "idx_question_type", columnList = "question_type"),
+        @Index(name = "idx_question_imposed_letter", columnList = "imposed_letter")
 })
 public class QuestionEntity {
 
@@ -61,9 +65,32 @@ public class QuestionEntity {
     @JoinColumn(name = "theme_id")
     private ThemeEntity theme;
 
+    /**
+     * Modes de jeu pour lesquels cette question peut être utilisée.
+     * Une question peut appartenir à plusieurs modes (DUEL, CASCADE, MARATHON, etc.)
+     */
+    @ElementCollection(targetClass = RoundType.class)
+    @CollectionTable(name = "ms_question_round_types", joinColumns = @JoinColumn(name = "question_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "round_type", length = 30)
-    private RoundType roundType;
+    private Set<RoundType> roundTypes = new HashSet<>();
+
+    /**
+     * Catégories de la question (ex: "peinture", "monuments", "presidents", etc.)
+     * Permet une classification plus fine que le thème.
+     */
+    @ElementCollection
+    @CollectionTable(name = "ms_question_categories", joinColumns = @JoinColumn(name = "question_id"))
+    @Column(name = "category", length = 100)
+    private Set<String> categories = new HashSet<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "question_type", length = 30)
+    private QuestionType questionType = QuestionType.STANDARD;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "country", length = 10)
+    private Country country;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "media_id")
@@ -222,12 +249,52 @@ public class QuestionEntity {
         this.theme = theme;
     }
 
-    public RoundType getRoundType() {
-        return roundType;
+    public Set<RoundType> getRoundTypes() {
+        return roundTypes;
     }
 
-    public void setRoundType(RoundType roundType) {
-        this.roundType = roundType;
+    public void setRoundTypes(Set<RoundType> roundTypes) {
+        this.roundTypes = roundTypes;
+    }
+
+    public void addRoundType(RoundType roundType) {
+        this.roundTypes.add(roundType);
+    }
+
+    public boolean hasRoundType(RoundType roundType) {
+        return this.roundTypes.contains(roundType);
+    }
+
+    public Set<String> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<String> categories) {
+        this.categories = categories;
+    }
+
+    public void addCategory(String category) {
+        this.categories.add(category.toLowerCase());
+    }
+
+    public boolean hasCategory(String category) {
+        return this.categories.contains(category.toLowerCase());
+    }
+
+    public QuestionType getQuestionType() {
+        return questionType;
+    }
+
+    public void setQuestionType(QuestionType questionType) {
+        this.questionType = questionType;
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
     }
 
     public MediaEntity getMedia() {
