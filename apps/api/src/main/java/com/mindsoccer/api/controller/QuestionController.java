@@ -12,6 +12,7 @@ import com.mindsoccer.protocol.dto.request.CreateQuestionRequest;
 import com.mindsoccer.protocol.dto.response.ImportResultResponse;
 import com.mindsoccer.protocol.dto.response.QuestionDetailResponse;
 import com.mindsoccer.protocol.dto.response.QuestionStatsResponse;
+import com.mindsoccer.protocol.dto.response.SmashQuestionOptionResponse;
 import com.mindsoccer.protocol.dto.response.ThemeResponse;
 import com.mindsoccer.protocol.enums.Difficulty;
 import com.mindsoccer.protocol.enums.RoundType;
@@ -31,7 +32,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -101,6 +105,42 @@ public class QuestionController {
         Page<QuestionEntity> questions = questionService.getByRoundType(roundType, PageRequest.of(page, size));
         Page<QuestionDetailResponse> responsePage = questions.map(this::toDetailResponse);
         return ResponseEntity.ok(ApiResponse.success(PageResponse.from(responsePage)));
+    }
+
+    @GetMapping("/smash/random")
+    @Operation(summary = "Questions aléatoires SMASH", description = "Récupérer des questions aléatoires pour le mode SMASH")
+    public ResponseEntity<ApiResponse<List<SmashQuestionOptionResponse>>> getRandomSmashQuestions(
+            @RequestParam(defaultValue = "10") int count,
+            @RequestParam(required = false) RoundType roundType
+    ) {
+        // Récupérer des questions SMASH_A, SMASH_B ou générales
+        Set<UUID> excludeIds = new HashSet<>();
+        List<QuestionEntity> questions;
+
+        if (roundType != null && (roundType == RoundType.SMASH_A || roundType == RoundType.SMASH_B)) {
+            // Questions spécifiques au type demandé
+            questions = questionService.getRandomByRoundType(roundType, count, excludeIds);
+        } else {
+            // Mix de questions SMASH_A et SMASH_B
+            List<QuestionEntity> smashA = questionService.getRandomByRoundType(RoundType.SMASH_A, count / 2, excludeIds);
+            smashA.forEach(q -> excludeIds.add(q.getId()));
+            List<QuestionEntity> smashB = questionService.getRandomByRoundType(RoundType.SMASH_B, count - smashA.size(), excludeIds);
+
+            questions = new java.util.ArrayList<>(smashA);
+            questions.addAll(smashB);
+            java.util.Collections.shuffle(questions);
+        }
+
+        List<SmashQuestionOptionResponse> response = questions.stream()
+                .map(q -> new SmashQuestionOptionResponse(
+                        q.getId(),
+                        q.getTextFr(),
+                        q.getAnswer(),
+                        q.getDifficulty().name()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/stats")

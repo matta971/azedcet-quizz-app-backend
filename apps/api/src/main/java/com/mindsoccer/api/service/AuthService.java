@@ -57,7 +57,13 @@ public class AuthService {
                 request.email().toLowerCase(),
                 passwordEncoder.encode(request.password())
         );
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setBirthDate(request.birthDate());
         user.setCountry(request.country());
+        if (request.preferredLanguage() != null) {
+            user.setPreferredLanguage(request.preferredLanguage());
+        }
 
         user = userRepository.save(user);
         log.info("User registered: {} ({})", user.getHandle(), user.getId());
@@ -115,7 +121,11 @@ public class AuthService {
                         user.getEmail(),
                         user.getRole(),
                         user.getRating(),
-                        user.getCountry()
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getBirthDate(),
+                        user.getCountry(),
+                        user.getPreferredLanguage()
                 )
         );
     }

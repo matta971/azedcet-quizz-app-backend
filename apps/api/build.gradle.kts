@@ -27,6 +27,9 @@ dependencies {
 
     runtimeOnly("org.postgresql:postgresql")
 
+    implementation("org.flywaydb:flyway-core")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
+
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 
     implementation("io.micrometer:micrometer-registry-prometheus")

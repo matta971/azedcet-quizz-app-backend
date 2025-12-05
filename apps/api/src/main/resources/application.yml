@@ -23,6 +23,13 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: '0'
+    locations: classpath:db/migration
+    table: flyway_schema_history
+
   data:
     redis:
       url: ${REDIS_URL:redis://localhost:6379}

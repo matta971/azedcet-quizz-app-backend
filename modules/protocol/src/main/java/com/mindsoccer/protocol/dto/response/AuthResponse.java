@@ -1,8 +1,10 @@
 package com.mindsoccer.protocol.dto.response;
 
+import com.mindsoccer.protocol.enums.Language;
 import com.mindsoccer.protocol.enums.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -37,6 +39,10 @@ public record AuthResponse(
             String email,
             UserRole role,
             int rating,
-            String country
+            String firstName,
+            String lastName,
+            LocalDate birthDate,
+            String country,
+            Language preferredLanguage
     ) {}
 }

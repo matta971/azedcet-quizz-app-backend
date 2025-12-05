@@ -2,35 +2,16 @@ package com.mindsoccer.protocol.dto.request;
 
 import com.mindsoccer.protocol.enums.Language;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
 /**
- * Requête d'inscription.
+ * Requête de mise à jour du profil.
  */
-@Schema(description = "Requête d'inscription d'un nouvel utilisateur")
-public record RegisterRequest(
-
-        @Schema(description = "Pseudo unique", example = "champion2024")
-        @NotBlank(message = "validation.required")
-        @Size(min = 3, max = 50, message = "validation.handle.size")
-        @Pattern(regexp = "^[a-zA-Z0-9_-]+$", message = "validation.handle.pattern")
-        String handle,
-
-        @Schema(description = "Adresse email", example = "user@example.com")
-        @NotBlank(message = "validation.required")
-        @Email(message = "validation.email.invalid")
-        String email,
-
-        @Schema(description = "Mot de passe", example = "SecurePass123!")
-        @NotBlank(message = "validation.required")
-        @Size(min = 8, max = 100, message = "validation.password.size")
-        String password,
+@Schema(description = "Requête de mise à jour du profil utilisateur")
+public record UpdateProfileRequest(
 
         @Schema(description = "Prénom", example = "Jean")
         @Size(max = 100, message = "validation.firstName.size")

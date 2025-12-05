@@ -5,17 +5,20 @@ import com.mindsoccer.api.repository.UserRepository;
 import com.mindsoccer.api.security.CurrentUser;
 import com.mindsoccer.api.security.UserPrincipal;
 import com.mindsoccer.protocol.dto.common.ApiResponse;
+import com.mindsoccer.protocol.dto.request.UpdateProfileRequest;
 import com.mindsoccer.protocol.dto.response.UserResponse;
+import com.mindsoccer.protocol.enums.Language;
 import com.mindsoccer.shared.exception.NotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -60,6 +63,47 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(toResponse(user)));
     }
 
+    @PutMapping("/me")
+    @Operation(summary = "Mettre à jour le profil", description = "Mettre à jour le profil de l'utilisateur connecté")
+    @Transactional
+    public ResponseEntity<ApiResponse<UserResponse>> updateProfile(
+            @CurrentUser UserPrincipal principal,
+            @Valid @RequestBody UpdateProfileRequest request
+    ) {
+        UserEntity user = userRepository.findById(principal.getId())
+                .orElseThrow(NotFoundException::player);
+
+        if (request.firstName() != null) {
+            user.setFirstName(request.firstName());
+        }
+        if (request.lastName() != null) {
+            user.setLastName(request.lastName());
+        }
+        if (request.birthDate() != null) {
+            user.setBirthDate(request.birthDate());
+        }
+        if (request.country() != null) {
+            user.setCountry(request.country());
+        }
+        if (request.preferredLanguage() != null) {
+            user.setPreferredLanguage(request.preferredLanguage());
+        }
+
+        user = userRepository.save(user);
+        return ResponseEntity.ok(ApiResponse.success(toResponse(user)));
+    }
+
+    @GetMapping("/languages")
+    @Operation(summary = "Langues disponibles", description = "Obtenir la liste des langues supportées")
+    public ResponseEntity<ApiResponse<List<LanguageOption>>> getAvailableLanguages() {
+        List<LanguageOption> languages = Arrays.stream(Language.values())
+                .map(lang -> new LanguageOption(lang.name(), lang.getDisplayName()))
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(languages));
+    }
+
+    public record LanguageOption(String code, String displayName) {}
+
     private UserResponse toResponse(UserEntity user) {
         return new UserResponse(
                 user.getId(),
@@ -67,7 +111,11 @@ public class UserController {
                 user.getEmail(),
                 user.getRole(),
                 user.getRating(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getBirthDate(),
                 user.getCountry(),
+                user.getPreferredLanguage(),
                 user.getCreatedAt()
         );
     }
