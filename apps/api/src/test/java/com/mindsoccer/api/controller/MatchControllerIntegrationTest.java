@@ -223,7 +223,7 @@ class MatchControllerIntegrationTest extends IntegrationTestBase {
         @DisplayName("Should join with preferred side")
         void shouldJoinWithPreferredSide() throws Exception {
             MatchEntity match = createTestMatch();
-            JoinMatchRequest request = new JoinMatchRequest(match.getId(), TeamSide.B, null);
+            JoinMatchRequest request = new JoinMatchRequest(TeamSide.B, null);
 
             mockMvc.perform(post("/api/matches/" + match.getId() + "/join")
                             .header("Authorization", "Bearer " + accessToken2)

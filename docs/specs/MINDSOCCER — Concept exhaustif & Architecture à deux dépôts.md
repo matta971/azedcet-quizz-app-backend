@@ -235,6 +235,39 @@
 
   * `penalty.applied` — cumul pénalités / suspension
 
+### **6.6.1 Événements WebSocket SMASH (détail)**
+
+Le workflow SMASH utilise les événements suivants :
+
+| Événement | Direction | Description |
+|-----------|-----------|-------------|
+| `SMASH_TURN_START` | Server → Client | Début du tour (turnNumber, attackerTeam, defenderTeam, roundType) |
+| `SMASH_CONCERTATION` | Server → Client | Phase concertation démarrée (SMASH A uniquement) |
+| `SMASH_TOP` | Client → Server | Bouton TOP pressé par l'attaquant |
+| `SMASH_TOP` | Server → Client | TOP confirmé, démarre le chrono 3s |
+| `SMASH_QUESTION_SUBMIT` | Client → Server | Attaquant soumet la question |
+| `SMASH_QUESTION_SUBMIT` | Server → Client | Question reçue, passage en validation |
+| `SMASH_VALIDATE_PROMPT` | Server → Client | Demande au défenseur de valider |
+| `SMASH_QUESTION_VALID` | Server → Client | Question validée, passage en réponse |
+| `SMASH_QUESTION_INVALID` | Server → Client | Question invalidée (+10 défenseur) |
+| `SMASH_ANSWER_PROMPT` | Server → Client | Demande au défenseur de répondre (10s) |
+| `SMASH_ANSWER_SUBMIT` | Client → Server | Défenseur soumet sa réponse |
+| `SMASH_ANSWER_SUBMIT` | Server → Client | Réponse reçue, passage en résultat |
+| `SMASH_RESULT_PROMPT` | Server → Client | Demande à l'attaquant de valider la réponse |
+| `SMASH_ANSWER_CORRECT` | Server → Client | Réponse validée correcte (+10 défenseur) |
+| `SMASH_ANSWER_INCORRECT` | Server → Client | Réponse incorrecte (0 pts) |
+| `SMASH_TIMEOUT` | Server → Client | Timeout sur une phase (question, validation, réponse) |
+| `SCORE_UPDATED` | Server → Client | Mise à jour des scores en temps réel |
+| `ROUND_ENDED` | Server → Client | Fin de la manche SMASH |
+
+**Endpoints WebSocket SMASH :**
+
+* `/app/match/{matchId}/smash/top` — Envoyer le TOP
+* `/app/match/{matchId}/smash/question` — Soumettre une question
+* `/app/match/{matchId}/smash/validate` — Valider/invalider la question
+* `/app/match/{matchId}/smash/answer` — Soumettre une réponse
+* `/app/match/{matchId}/smash/result` — Valider le résultat (correct/incorrect)
+
 ### **6.7 Anti-triche**
 
 * **Server authoritative** (horloge/états), **idempotence** commandes.
